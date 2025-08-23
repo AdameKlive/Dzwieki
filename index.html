@@ -22,7 +22,7 @@
 
     .desc {
       max-width: 900px;
-      margin: 0 auto 40px auto;
+      margin: 0 auto 20px auto;
       font-size: 16px;
       color: #a5adbb;
       line-height: 1.6;
@@ -30,6 +30,15 @@
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    .filters {
+      margin-bottom: 30px;
+    }
+    .filters label {
+      margin-right: 20px;
+      font-size: 14px;
+      cursor: pointer;
     }
 
     #playlist {
@@ -61,7 +70,7 @@
 
     /* Styl dla straszaków */
     .player.scary {
-      background: #2a0f0f; /* ciemnoczerwone tło */
+      background: #2a0f0f;
       border: 1px solid #ff4444;
     }
 
@@ -81,18 +90,24 @@
 
     audio {
       width: 100%;
-      height: 35px; /* wysokość playera */
+      height: 35px;
     }
   </style>
 </head>
 <body>
   <h1>🎵 Podgląd dźwięków</h1>
+
   <div class="desc">
     Na tej stronie możesz sprawdzić każdy dostępny dźwięk z nagrody <b>„SoundEffect”</b> za punkty kanału.<br><br>
     <span style="color:#fff; font-weight:600;">ℹ️ Pamiętaj:</span> 
     Wpisz <u>dokładnie taką samą nazwę</u>, jak jest nad odtwarzaczem.<br>
     W przeciwnym razie dźwięk nie zadziała, a Ty stracisz punkty!<br>
-	*<span style="color:red;">czerwone</span> boxy oznaczają <b>straszaki</b>*
+    *<span style="color:red;">czerwone</span> boxy oznaczają <b>straszaki</b>*
+  </div>
+
+  <div class="filters">
+    <label><input type="checkbox" id="normalChk" checked> Pokaż zwykłe</label>
+    <label><input type="checkbox" id="scaryChk" checked> Pokaż straszaki</label>
   </div>
 
   <div id="playlist"></div>
@@ -115,23 +130,41 @@
 	  { name: "SPISZ", file: "audio/SPISZ.mp3" },
 	  { name: "Streamer-Time", file: "audio/Streamer-Time.mp3" },
 	  { name: "tu-sa-emocje", file: "audio/tu-sa-emocje.mp3" },
-      { name: "Straszak 2", file: "audio/jumpscare2.mp3", scary: true },
+      { name: "alarm", file: "audio/alarm.mp3", scary: true },
       { name: "ty-ku", file: "audio/ty-ku.mp3" },
       { name: "wilk", file: "audio/wilk.mp3" },
 	  { name: "Windows10Error", file: "audio/Windows10Error.mp3" },
 	  { name: "Discord", file: "audio/Discord.mp3" },
+	  { name: "cotozagowno", file: "audio/cotozagowno.mp3" },
+	  { name: "enderman", file: "audio/enderman.mp3" },
+	  { name: "i-feel-good", file: "audio/i-feel-good.mp3", scary: true },
+	  { name: "japko", file: "audio/japko.mp3", scary: true },
+	  { name: "koncz", file: "audio/koncz.mp3" },
+	  { name: "krzyk", file: "audio/krzyk.mp3", scary: true },
+	  { name: "nudyy", file: "audio/nudyy.mp3" },
+	  { name: "ostatnie-ostrzezenie", file: "audio/ostatnie-ostrzezenie.mp3" },
+	  { name: "siuuuu", file: "audio/siuuuu.mp3", scary: true },
+	  { name: "strzal", file: "audio/strzal.mp3", scary: true },
+	  { name: "ty-kurwo", file: "audio/ty-kurwo.mp3", scary: true },
+	  { name: "usypiam", file: "audio/usypiam.mp3" },
+	  { name: "windowsxp", file: "audio/windowsxp.mp3", scary: true },
+	  { name: "wither1", file: "audio/wither1.mp3", scary: true },
+	  { name: "wither2", file: "audio/wither2.mp3", scary: true },
+	  { name: "zawardo", file: "audio/zawardo.mp3", scary: true },
+	  
+	  
     ];
 
-    const playlistEl = document.getElementById("playlist");
+   const playlistEl = document.getElementById("playlist");
 
     SOUNDS.forEach(s => {
       const wrap = document.createElement("div");
       wrap.className = "player";
-      if (s.scary) wrap.classList.add("scary"); // dodanie klasy scary
+      if (s.scary) wrap.classList.add("scary");
 
       const title = document.createElement("div");
       title.className = "title";
-      title.textContent = s.name; // tytuł się nie zmienia
+      title.textContent = s.name;
 
       const audioWrapper = document.createElement("div");
       audioWrapper.className = "audio-wrapper";
@@ -149,6 +182,23 @@
       wrap.appendChild(audioWrapper);
       playlistEl.appendChild(wrap);
     });
+
+    const normalChk = document.getElementById("normalChk");
+    const scaryChk = document.getElementById("scaryChk");
+
+    function filterPlayers() {
+      document.querySelectorAll(".player").forEach(p => {
+        const isScary = p.classList.contains("scary");
+        if ((isScary && scaryChk.checked) || (!isScary && normalChk.checked)) {
+          p.style.display = "flex";
+        } else {
+          p.style.display = "none";
+        }
+      });
+    }
+
+    normalChk.addEventListener("change", filterPlayers);
+    scaryChk.addEventListener("change", filterPlayers);
   </script>
 </body>
 </html>
