@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>🎵 Podgląd dźwięków</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      background: #0f1115;
+      color: #e6e8ec;
+      font-family: "Segoe UI", Roboto, sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 15px;
+      color: #fff;
+    }
+
+    .desc {
+      max-width: 900px;
+      margin: 0 auto 20px auto;
+      font-size: 16px;
+      color: #a5adbb;
+      line-height: 1.6;
+      background: #171a21;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    .filters {
+      margin-bottom: 30px;
+    }
+    .filters label {
+      margin-right: 20px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    #playlist {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      justify-items: center;
+      max-width: 1500px;
+      margin: auto;
+    }
+
+    .player {
+      background: #1c1f27;
+      border-radius: 14px;
+      padding: 10px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .player:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+    }
+
+    .player.scary {
+      background: #2a0f0f;
+      border: 1px solid #ff4444;
+    }
+
+    .player.mod {
+      border: 1px solid #3fa9f5;
+      background: #14202e;
+    }
+
+    .title {
+      font-size: 15px;
+      font-weight: 600;
+      text-align: center;
+      color: #e6e8ec;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .audio-wrapper {
+      width: 100%;
+    }
+
+    audio {
+      width: 100%;
+      height: 35px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎵 Podgląd dźwięków</h1>
+
+  <div class="desc">
+    Na tej stronie możesz sprawdzić każdy dostępny dźwięk z nagrody <b>„SoundEffect”</b> za punkty kanału.<br><br>
+    <span style="color:#fff; font-weight:600;">ℹ️ Pamiętaj:</span> 
+    Wpisz <u>dokładnie taką samą nazwę</u>, jak jest nad odtwarzaczem.<br>
+    W przeciwnym razie dźwięk nie zadziała, a Ty stracisz punkty!<br>
+    *<span style="color:red;">czerwone</span> boxy oznaczają <b>straszaki</b>, <span style="color:#3fa9f5;">niebieskie</span> – tylko dla <b>moderatorów</b>*.
+  </div>
+
+  <div class="filters">
+    <label><input type="checkbox" id="normalChk" checked> Pokaż zwykłe</label>
+    <label><input type="checkbox" id="scaryChk" checked> Pokaż straszaki</label>
+    <label><input type="checkbox" id="modChk"> Tylko moderatorzy</label>
+  </div>
+
+  <div id="playlist"></div>
+
+  <script>
+    const SOUNDS = [   
+{ name: "13dolarkow", file: "audio/13dolarkow.ogg" },
+{ name: "alarm", file: "audio/alarm.ogg", scary: true },
+{ name: "aleinteresującagra", file: "audio/aleinteresującagra.ogg" },
+{ name: "alejaja", file: "audio/alejaja.ogg" },
+{ name: "bedelizalstopy", file: "audio/bedelizalstopy.ogg" },
+{ name: "BEKA", file: "audio/BEKA.ogg" },
+{ name: "belt", file: "audio/belt.ogg" },
+{ name: "bitbox", file: "audio/bitbox.ogg" },
+{ name: "blagam", file: "audio/blagam.ogg" },
+{ name: "BOOOOBER", file: "audio/BOOOOBER.ogg" },
+{ name: "chlup", file: "audio/chlup.ogg" },
+{ name: "chomik", file: "audio/chomik.ogg" },
+{ name: "chujnasto", file: "audio/chujnasto.ogg" },
+{ name: "cokurwa", file: "audio/cokurwa.ogg" },
+{ name: "cosiebedziedzialo", file: "audio/cosiebedziedzialo.ogg" },
+{ name: "cotozagowno", file: "audio/cotozagowno.ogg" },
+{ name: "creeperohman", file: "audio/creeperohman.ogg", mod: true },
+{ name: "cycuszki", file: "audio/cycuszki.ogg" },
+{ name: "czarne", file: "audio/czarne.ogg" },
+{ name: "czarnelubie", file: "audio/czarnelubie.ogg" },
+{ name: "debilwidzowie", file: "audio/debilwidzowie.ogg" },
+{ name: "delmuch", file: "audio/delmuch.ogg" },
+{ name: "demonzkurwa", file: "audio/demonzkurwa.ogg", scary: true },
+{ name: "demonzpierdolsie", file: "audio/demonzpierdolsie.ogg" },
+{ name: "demonzsmiech", file: "audio/demonzsmiech.ogg" },
+{ name: "discord", file: "audio/discord.ogg" },
+{ name: "drzwi", file: "audio/drzwi.ogg" },
+{ name: "enderman", file: "audio/enderman.ogg", scary: true },
+{ name: "erika", file: "audio/erika.ogg" },
+{ name: "funkcionariuszkowal", file: "audio/funkcionariuszkowal.ogg" },
+{ name: "Gay", file: "audio/Gay.ogg" },
+{ name: "hej", file: "audio/hej.ogg" },
+{ name: "ifeelgood", file: "audio/ifeelgood.ogg", scary: true },
+{ name: "interesujacagra", file: "audio/interesujacagra.ogg" },
+{ name: "jakslychac", file: "audio/jakslychac.ogg" },
+{ name: "japko", file: "audio/japko.ogg", scary: true },
+{ name: "jasperiphon", file: "audio/jasperiphon.ogg" },
+{ name: "jaspersmiech", file: "audio/jaspersmiech.ogg" },
+{ name: "jebeimnie", file: "audio/jebeimnie.ogg" },
+{ name: "joker", file: "audio/joker.ogg" },
+{ name: "kabel", file: "audio/kabel.ogg" },
+{ name: "karmienie", file: "audio/karmienie.ogg" },
+{ name: "klakson", file: "audio/klakson.ogg" },
+{ name: "klamka", file: "audio/klamka.ogg" },
+{ name: "klopot", file: "audio/klopot.ogg" },
+{ name: "kohonesklejones", file: "audio/kohonesklejones.ogg" },
+{ name: "koncz", file: "audio/koncz.ogg" },
+{ name: "konczelajwa", file: "audio/konczelajwa.ogg" },
+{ name: "krzyk", file: "audio/krzyk.ogg", scary: true },
+{ name: "ktopytal", file: "audio/ktopytal.ogg" },
+{ name: "mamba", file: "audio/maba.ogg" },
+{ name: "malydebil", file: "audio/malydebil.ogg" },
+{ name: "mamonsperma", file: "audio/mamonsperma.ogg" },
+{ name: "mniepokonuje", file: "audio/mniepokonuje.ogg" },
+{ name: "mordeczkonieprzepraszaj", file: "audio/mordeczkonieprzepraszaj.ogg", mod: true },
+{ name: "moris", file: "audio/moris.ogg" },
+{ name: "mudzyn", file: "audio/mudzyn.ogg" },
+{ name: "mudzyny", file: "audio/mudzyny.ogg", mod: true },
+{ name: "niedrzyjsie", file: "audio/niedrzyjsie.ogg", scary: true },
+{ name: "niemabomby", file: "audio/niemabomby.ogg" },
+{ name: "niemamnie", file: "audio/niemamnie.ogg" },
+{ name: "nienawisc", file: "audio/nienawisc.ogg" },
+{ name: "niewygodniemisiesiedzi", file: "audio/niewygodniemisiesiedzi.ogg" },
+{ name: "nudyy", file: "audio/nudyy.ogg" },
+{ name: "obiad", file: "audio/obiad.ogg" },
+{ name: "ogarnijsie", file: "audio/ogarnijsie.ogg" },
+{ name: "osobiscieciewypierdole", file: "audio/osobiscieciewypierdole.ogg" },
+{ name: "ostatnieostrzezenie", file: "audio/ostatnieostrzezenie.ogg" },
+{ name: "penetracja", file: "audio/penetracja.ogg" },
+{ name: "piesnasral", file: "audio/piesnasral.ogg" },
+{ name: "prawiczek", file: "audio/prawiczek.ogg" },
+{ name: "siema", file: "audio/siema.ogg" },
+{ name: "siuuuu", file: "audio/siuuuu.ogg", scary: true },
+{ name: "skyfall", file: "audio/skyfall.ogg", mod: true },
+{ name: "slimak", file: "audio/slimak.ogg" },
+{ name: "slimshady", file: "audio/slimshady.ogg", mod: true },
+{ name: "smiech", file: "audio/smiech.ogg" },
+{ name: "smiechtygrysa", file: "audio/smiechtygrysa.ogg" },
+{ name: "SPISZ", file: "audio/SPISZ.ogg" },
+{ name: "spowiedz", file: "audio/spowiedz.ogg", mod: true },
+{ name: "staywhitme", file: "audio/staywhitme.ogg", mod: true },
+{ name: "strzal", file: "audio/strzal.ogg", scary: true },
+{ name: "szatan", file: "audio/szatan.ogg", scary: true },
+{ name: "tatozajebiscie", file: "audio/tatozajebiscie.ogg" },
+{ name: "tps", file: "audio/tps.ogg", mod: true },
+{ name: "tusaemocje", file: "audio/tusaemocje.ogg" },
+{ name: "tykurwo", file: "audio/tykurwo.ogg", scary: true },
+{ name: "usypiam", file: "audio/usypiam.ogg" },
+{ name: "wiesiaharidonta", file: "audio/wiesiaharidonta.ogg" },
+{ name: "wiesiaoo", file: "audio/wiesiaoo.ogg" },
+{ name: "wilk", file: "audio/wilk.ogg" },
+{ name: "Windows10Error", file: "audio/Windows10Error.ogg" },
+{ name: "windowsxp", file: "audio/windowsxp.ogg", scary: true },
+{ name: "wither1", file: "audio/wither1.ogg", scary: true },
+{ name: "wither2", file: "audio/wither2.ogg", scary: true },
+{ name: "zarazodda", file: "audio/zarazodda.ogg" },
+{ name: "zatoban", file: "audio/zatoban.ogg" },
+{ name: "zawardo", file: "audio/zawardo.ogg"scary: true },
+{ name: "zwariowananoc", file: "audio/zwariowananoc.ogg", mod: true },
+    ];
+
+    const playlistEl = document.getElementById("playlist");
+
+    SOUNDS.forEach(s => {
+      const wrap = document.createElement("div");
+      wrap.className = "player";
+      if (s.scary) wrap.classList.add("scary");
+      if (s.mod) wrap.classList.add("mod");
+
+      const title = document.createElement("div");
+      title.className = "title";
+      title.textContent = s.name;
+
+      const audioWrapper = document.createElement("div");
+      audioWrapper.className = "audio-wrapper";
+
+      const audio = document.createElement("audio");
+      audio.controls = true;
+      audio.preload = "none";
+      const source = document.createElement("source");
+      source.src = s.file;
+      source.type = "audio/ogg";
+      audio.appendChild(source);
+
+      audioWrapper.appendChild(audio);
+      wrap.appendChild(title);
+      wrap.appendChild(audioWrapper);
+      playlistEl.appendChild(wrap);
+    });
+
+    const normalChk = document.getElementById("normalChk");
+    const scaryChk = document.getElementById("scaryChk");
+    const modChk = document.getElementById("modChk");
+
+    function filterPlayers() {
+      document.querySelectorAll(".player").forEach(p => {
+        const isScary = p.classList.contains("scary");
+        const isMod = p.classList.contains("mod");
+
+        if (modChk.checked) {
+          p.style.display = isMod ? "flex" : "none";
+          return;
+        }
+
+        if ((isScary && scaryChk.checked) || (!isScary && normalChk.checked)) {
+          p.style.display = "flex";
+        } else {
+          p.style.display = "none";
+        }
+      });
+    }
+
+    normalChk.addEventListener("change", filterPlayers);
+    scaryChk.addEventListener("change", filterPlayers);
+    modChk.addEventListener("change", filterPlayers);
+  </script>
+</body>
+</html>
