@@ -115,7 +115,16 @@
     <label><input type="checkbox" id="modChk"> Tylko moderatorzy</label>
   </div>
 
-  <div id="playlist"></div>
+  <table id="playlist" style="width:100%;max-width:900px;margin:auto;border-collapse:collapse;text-align:left;">
+  <thead>
+    <tr style="background:#171a21;">
+      <th style="padding:10px;">Nazwa</th>
+      <th style="padding:10px;">Komenda</th>
+      <th style="padding:10px;">Podgląd</th>
+    </tr>
+  </thead>
+  <tbody id="playlist-body"></tbody>
+</table>
 
   <script>
     const SOUNDS = [   
@@ -220,20 +229,23 @@
 { name: "zwariowananoc", file: "audio/zwariowananoc.ogg", mod: true },
     ];
 
-    const playlistEl = document.getElementById("playlist");
+    const playlistEl = document.getElementById("playlist-body");
 
     SOUNDS.forEach(s => {
-      const wrap = document.createElement("div");
-      wrap.className = "player";
-      if (s.scary) wrap.classList.add("scary");
-      if (s.mod) wrap.classList.add("mod");
+      const row = document.createElement("tr");
+      row.style.background = s.scary ? "#2a0f0f" : s.mod ? "#14202e" : "#1c1f27";
+      row.style.borderBottom = "1px solid #000";
 
-      const title = document.createElement("div");
-      title.className = "title";
-      title.textContent = s.name;
+      const tdName = document.createElement("td");
+      tdName.style.padding = "10px";
+      tdName.textContent = s.name;
 
-      const audioWrapper = document.createElement("div");
-      audioWrapper.className = "audio-wrapper";
+      const tdCmd = document.createElement("td");
+      tdCmd.style.padding = "10px";
+      tdCmd.textContent = `!#${s.name}`;
+
+      const tdAudio = document.createElement("td");
+      tdAudio.style.padding = "10px";
 
       const audio = document.createElement("audio");
       audio.controls = true;
@@ -242,11 +254,13 @@
       source.src = s.file;
       source.type = "audio/ogg";
       audio.appendChild(source);
+      tdAudio.appendChild(audio);
 
-      audioWrapper.appendChild(audio);
-      wrap.appendChild(title);
-      wrap.appendChild(audioWrapper);
-      playlistEl.appendChild(wrap);
+      row.appendChild(tdName);
+      row.appendChild(tdCmd);
+      row.appendChild(tdAudio);
+      playlistEl.appendChild(row);
+    })(wrap);
     });
 
     const normalChk = document.getElementById("normalChk");
