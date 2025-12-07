@@ -174,7 +174,7 @@
         `;
         
         copyBtn.onclick = () => {
-          navigator.clipboard.writeText("!#" + s.name);
+          navigator.clipboard.writeText("" + s.name);
           status.style.opacity = 1;
           setTimeout(() => status.style.opacity = 0, 1200);
         };
@@ -227,3 +227,4 @@
 
 </body>
 </html>
+
