@@ -98,5 +98,5 @@
   { "name": "zatoban", "file": "audio/zatoban.ogg" },
   { "name": "zawardo", "file": "audio/zawardo.ogg", "scary": true },
   { "name": "zwariowananoc", "file": "audio/zwariowananoc.ogg", "mod": true },
-  { "name": "domagamysie", "file": "audio/domagamy2.ogg" }
+  { "name": "domagamysie", "file": "audio/domagamy2.ogg" },
 ]
