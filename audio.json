@@ -96,7 +96,7 @@
   { "name": "wither2", "file": "audio/wither2.ogg", "scary": true },
   { "name": "zarazodda", "file": "audio/zarazodda.ogg" },
   { "name": "zatoban", "file": "audio/zatoban.ogg" },
-
+  { "name": "domagamy2", "file": "audio/domagamy2.ogg" },
 
   
   { "name": "zawardo", "file": "audio/zawardo.ogg", "scary": true },
