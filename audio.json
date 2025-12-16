@@ -101,5 +101,5 @@
   
   { "name": "zawardo", "file": "audio/zawardo.ogg", "scary": true },
   { "name": "zwariowananoc", "file": "audio/zwariowananoc.ogg", "mod": true },
-  { "name": "domagamysie", "file": "audio/domagamy2.ogg" }
+  { "name": "domagamy2", "file": "audio/domagamy2.ogg" }
 ]
