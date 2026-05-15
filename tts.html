@@ -1,0 +1,333 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>🤖 VoiceDrop TTS</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      background: #0f1115;
+      color: #e6e8ec;
+      font-family: "Segoe UI", Roboto, sans-serif;
+      text-align: center;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .tab {
+      padding: 8px 22px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      background: #1c1f27;
+      color: #a5adbb;
+      border: 1px solid #2a2f3a;
+      transition: all .2s;
+    }
+    .tab:hover { background: #252a33; color: #e6e8ec; }
+    .tab.active { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+
+    h1 { font-size: 32px; margin-bottom: 15px; color: #fff; }
+    h2 { font-size: 20px; color: #c084fc; margin: 36px 0 16px; }
+
+    .desc {
+      max-width: 820px;
+      margin: 0 auto 20px;
+      font-size: 15px;
+      color: #a5adbb;
+      line-height: 1.7;
+      background: #171a21;
+      padding: 20px 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      text-align: left;
+    }
+
+    /* Składnia */
+    .syntax-box {
+      max-width: 820px;
+      margin: 0 auto 12px;
+      background: #12151c;
+      border: 1px solid #2d2d4a;
+      border-radius: 10px;
+      padding: 14px 20px;
+      text-align: left;
+    }
+    .syntax-label {
+      font-size: 11px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .syntax-code {
+      font-family: monospace;
+      font-size: 15px;
+      color: #e2e8f0;
+      background: #1c1f27;
+      padding: 10px 14px;
+      border-radius: 7px;
+      margin-bottom: 6px;
+      word-break: break-all;
+    }
+    .syntax-code .v  { color: #a855f7; }
+    .syntax-code .s  { color: #fbbf24; }
+    .syntax-code .t  { color: #e2e8f0; }
+    .syntax-desc { font-size: 13px; color: #64748b; }
+
+    /* Głosy */
+    .voices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    .voice-card {
+      background: #1c1f27;
+      border: 1px solid #2a2f3a;
+      border-radius: 12px;
+      padding: 18px 14px;
+      text-align: center;
+    }
+    .voice-avatar {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+    .voice-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #e6e8ec;
+      margin-bottom: 4px;
+    }
+    .voice-cmd {
+      font-size: 12px;
+      color: #a855f7;
+      font-family: monospace;
+      background: #12151c;
+      padding: 3px 8px;
+      border-radius: 5px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .voice-desc {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* Dźwięki */
+    #sounds-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .sound-card {
+      background: #1c1f27;
+      border-radius: 12px;
+      padding: 12px 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sound-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sound-id {
+      background: #12151c;
+      border: 1px solid #2d2d4a;
+      color: #fbbf24;
+      font-family: monospace;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .sound-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e6e8ec;
+      text-align: left;
+      flex: 1;
+      word-break: break-word;
+    }
+
+    .copy-btn {
+      background: #252a33;
+      border: 1px solid #4c5667;
+      color: #e6e8ec;
+      border-radius: 6px;
+      padding: 3px 7px;
+      cursor: pointer;
+      font-size: 12px;
+      white-space: nowrap;
+      transition: background .15s;
+    }
+    .copy-btn:hover { background: #323843; }
+    .copy-btn.ok { color: #7fff7f; border-color: #7fff7f; }
+
+    audio {
+      width: 100%;
+      height: 32px;
+    }
+
+    footer {
+      margin-top: 60px;
+      color: #3a3f4b;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="tabs">
+    <a href="index.html" class="tab">🎵 Dźwięki</a>
+    <a href="tts.html"   class="tab active">🤖 VoiceDrop TTS</a>
+  </nav>
+
+  <h1>🤖 VoiceDrop TTS</h1>
+
+  <div class="desc">
+    <b style="color:#fff">Co to jest VoiceDrop?</b><br>
+    VoiceDrop to własny system AI TTS na streamie. Zamiast robota z StreamElements,
+    alerty od widzów są odczytywane przez <b>klonowane głosy</b> — możesz wybrać który głos
+    ma mówić daną część wiadomości, a między zdaniami wstawiać efekty dźwiękowe.<br><br>
+    <b style="color:#fff">Jak używać w wiadomości donate?</b><br>
+    Pisząc wiadomość przy donacji możesz sterować głosem i dźwiękami za pomocą komend poniżej.
+    Jeśli nic nie wpiszesz — system odczyta wiadomość domyślnym głosem.
+  </div>
+
+  <h2>📝 Składnia komend</h2>
+
+  <div class="syntax-box">
+    <div class="syntax-label">Wybór głosu</div>
+    <div class="syntax-code"><span class="v">adamek:</span> <span class="t">Hej co tam słychać?</span></div>
+    <div class="syntax-desc">Wpisz nazwę głosu, dwukropek, spacja, tekst — ten fragment zostanie wypowiedziany wybranym głosem.</div>
+  </div>
+
+  <div class="syntax-box">
+    <div class="syntax-label">Efekt dźwiękowy</div>
+    <div class="syntax-code"><span class="s">[8]</span></div>
+    <div class="syntax-desc">Numer w nawiasach kwadratowych wstawia efekt dźwiękowy z listy poniżej.</div>
+  </div>
+
+  <div class="syntax-box">
+    <div class="syntax-label">Kombinacja — multi-głos + efekty</div>
+    <div class="syntax-code">
+      <span class="v">kawai:</span> <span class="t">siema siema</span> <span class="s">[8]</span> <span class="v">adamek:</span> <span class="t">no hej co tam</span> <span class="s">[3]</span>
+    </div>
+    <div class="syntax-desc">Każdy głos mówi swój fragment po kolei, efekty dźwiękowe wstawiane są między nimi.</div>
+  </div>
+
+  <h2>🎤 Dostępne głosy</h2>
+
+  <div class="voices-grid">
+    <div class="voice-card">
+      <div class="voice-avatar">🎙️</div>
+      <div class="voice-name">adamek</div>
+      <div class="voice-cmd">adamek: tekst</div>
+      <div class="voice-desc">Głos streamera</div>
+    </div>
+    <div class="voice-card">
+      <div class="voice-avatar">🌸</div>
+      <div class="voice-name">kawai</div>
+      <div class="voice-cmd">kawai: tekst</div>
+      <div class="voice-desc">Głos żeński</div>
+    </div>
+    <div class="voice-card">
+      <div class="voice-avatar">📢</div>
+      <div class="voice-name">lektor</div>
+      <div class="voice-cmd">lektor: tekst</div>
+      <div class="voice-desc">Głos lektora</div>
+    </div>
+    <div class="voice-card">
+      <div class="voice-avatar">💛</div>
+      <div class="voice-name">minion</div>
+      <div class="voice-cmd">minion: tekst</div>
+      <div class="voice-desc">Głos minionka</div>
+    </div>
+  </div>
+
+  <h2>🔊 Efekty dźwiękowe</h2>
+
+  <div id="sounds-grid"></div>
+
+  <footer>dzwieki.adameklive.pl · VoiceDrop TTS</footer>
+
+  <script>
+    const SOUNDS = [
+      { id: 1,  name: "Plakal",                        file: "tts-audio/1.wav"  },
+      { id: 2,  name: "FAHHHHHHHHHHHHHH",              file: "tts-audio/2.wav"  },
+      { id: 3,  name: "Fart",                          file: "tts-audio/3.wav"  },
+      { id: 4,  name: "ja nasrał w turbinu samalote",  file: "tts-audio/4.wav"  },
+      { id: 5,  name: "M e o w ~",                     file: "tts-audio/5.wav"  },
+      { id: 6,  name: "VINE BOOM SOUND",               file: "tts-audio/6.wav"  },
+      { id: 7,  name: "anime ahh",                     file: "tts-audio/7.wav"  },
+      { id: 8,  name: "rizz sound effect",             file: "tts-audio/8.wav"  },
+      { id: 9,  name: "Chicken on tree screaming",     file: "tts-audio/9.wav"  },
+      { id: 10, name: "Michael Jackson Hee Hee",       file: "tts-audio/10.wav" },
+      { id: 11, name: "Pokaż Dópe",                    file: "tts-audio/11.wav" },
+      { id: 12, name: "TU TU TU DU MAX VERSTAPPEN",   file: "tts-audio/12.wav" },
+      { id: 13, name: "Jesteś chuj nie kolega",        file: "tts-audio/13.wav" },
+    ];
+
+    const grid = document.getElementById("sounds-grid");
+
+    SOUNDS.forEach(s => {
+      const card = document.createElement("div");
+      card.className = "sound-card";
+
+      const top = document.createElement("div");
+      top.className = "sound-top";
+
+      const id = document.createElement("div");
+      id.className = "sound-id";
+      id.textContent = `[${s.id}]`;
+
+      const name = document.createElement("div");
+      name.className = "sound-name";
+      name.textContent = s.name;
+
+      const copy = document.createElement("button");
+      copy.className = "copy-btn";
+      copy.textContent = `Kopiuj [${s.id}]`;
+      copy.onclick = () => {
+        navigator.clipboard.writeText(`[${s.id}]`);
+        copy.textContent = "✓ Skopiowano";
+        copy.classList.add("ok");
+        setTimeout(() => {
+          copy.textContent = `Kopiuj [${s.id}]`;
+          copy.classList.remove("ok");
+        }, 1400);
+      };
+
+      top.appendChild(id);
+      top.appendChild(name);
+      top.appendChild(copy);
+
+      const audio = document.createElement("audio");
+      audio.controls = true;
+      audio.preload = "none";
+      audio.src = s.file;
+
+      card.appendChild(top);
+      card.appendChild(audio);
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>
