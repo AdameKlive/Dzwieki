@@ -238,13 +238,6 @@
       position:relative;
     }
     .fx-chip:hover { background:rgba(103,232,249,.14); border-color:#67e8f9; transform:translateY(-1px); }
-    .fx-chip .fxtt {
-      display:none; position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
-      background:#13151e; border:1px solid #252830; border-radius:6px;
-      padding:5px 10px; font-size:11px; font-family:"Segoe UI",sans-serif;
-      color:#dde1ea; white-space:nowrap; pointer-events:none; z-index:300;
-    }
-    .fx-chip:hover .fxtt { display:block; }
 
     /* Actions */
     .composer-actions { display:flex; align-items:center; gap:8px; margin-top:10px; flex-wrap:wrap; }
@@ -255,6 +248,20 @@
     }
     .btn-clear:hover { border-color:#374151; color:#6b7280; }
     #val-test-status { flex:1; font-size:12px; min-width:0; }
+    .btn-copy {
+      padding:8px 14px; background:transparent; border:1px solid #1e2130;
+      border-radius:10px; color:#9ca3af; font-size:13px; font-weight:600;
+      cursor:pointer; transition:all .15s; font-family:inherit; white-space:nowrap;
+    }
+    .btn-copy:hover { border-color:#4b5563; color:#dde1ea; }
+    .btn-copy.ok { border-color:#4ade80 !important; color:#4ade80 !important; }
+    .btn-donate {
+      padding:8px 14px; background:transparent; border:1px solid #374151;
+      border-radius:10px; color:#fbbf24; font-size:13px; font-weight:600;
+      cursor:pointer; transition:all .15s; font-family:inherit; white-space:nowrap;
+      text-decoration:none; display:inline-flex; align-items:center; gap:5px;
+    }
+    .btn-donate:hover { background:rgba(251,191,36,.08); border-color:#fbbf24; }
     .btn-test {
       padding:8px 20px; background:#6d28d9; border:none; border-radius:10px;
       color:#fff; font-size:13px; font-weight:700; cursor:pointer;
@@ -400,23 +407,25 @@
         <!-- Effect chips -->
         <div class="fx-row">
           <span class="fx-label">Efekty:</span>
-          <button class="fx-chip" id="fx-1" >{1}<span class="fxtt">📞 telefon</span></button>
-          <button class="fx-chip" id="fx-2" >{2}<span class="fxtt">📻 radio</span></button>
-          <button class="fx-chip" id="fx-4" >{4}<span class="fxtt">🤖 robot</span></button>
-          <button class="fx-chip" id="fx-5" >{5}<span class="fxtt">🔁 echo</span></button>
-          <button class="fx-chip" id="fx-6" >{6}<span class="fxtt">🔊 fade in</span></button>
-          <button class="fx-chip" id="fx-7" >{7}<span class="fxtt">🔇 fade out</span></button>
-          <button class="fx-chip" id="fx-8" >{8}<span class="fxtt">🐢 slow</span></button>
-          <button class="fx-chip" id="fx-9" >{9}<span class="fxtt">⚡ fast</span></button>
-          <button class="fx-chip" id="fx-10">{10}<span class="fxtt">🧱 muff</span></button>
-          <button class="fx-chip" id="fx-11">{11}<span class="fxtt">⬇️ niższy pitch</span></button>
-          <button class="fx-chip" id="fx-12">{12}<span class="fxtt">⬆️ wyższy pitch</span></button>
+          <button class="fx-chip" id="fx-1" >📞 telefon</button>
+          <button class="fx-chip" id="fx-2" >📻 radio</button>
+          <button class="fx-chip" id="fx-4" >🤖 robot</button>
+          <button class="fx-chip" id="fx-5" >🔁 echo</button>
+          <button class="fx-chip" id="fx-6" >🔊 fade in</button>
+          <button class="fx-chip" id="fx-7" >🔇 fade out</button>
+          <button class="fx-chip" id="fx-8" >🐢 slow</button>
+          <button class="fx-chip" id="fx-9" >⚡ fast</button>
+          <button class="fx-chip" id="fx-10">🧱 muff</button>
+          <button class="fx-chip" id="fx-11">⬇️ niższy pitch</button>
+          <button class="fx-chip" id="fx-12">⬆️ wyższy pitch</button>
         </div>
 
         <!-- Actions -->
         <div class="composer-actions">
           <button class="btn-clear" id="clear-btn">✕ Wyczyść</button>
           <div id="val-test-status"></div>
+          <a class="btn-donate" id="donate-btn" href="https://streamelements.com/adamekl/tip" target="_blank" rel="noopener">💸 Donate</a>
+          <button class="btn-copy" id="copy-btn">📋 Kopiuj</button>
           <button class="btn-test" id="val-test-btn">▶ Testuj TTS</button>
         </div>
         <audio id="val-audio" controls></audio>
@@ -510,6 +519,22 @@
       input.dispatchEvent(new Event('input'));
       input.focus();
     };
+
+    // Copy
+    const copyBtn = document.getElementById('copy-btn');
+    copyBtn.addEventListener('click', () => {
+      const msg = input.value.trim();
+      if (!msg) return;
+      navigator.clipboard.writeText(msg).then(() => {
+        clearTimeout(copyBtn._t);
+        copyBtn.textContent = '✓ Skopiowano!';
+        copyBtn.classList.add('ok');
+        copyBtn._t = setTimeout(() => {
+          copyBtn.textContent = '📋 Kopiuj';
+          copyBtn.classList.remove('ok');
+        }, 1500);
+      });
+    });
 
     // ── Validator ──────────────────────────────────────────────────────────
     function escH(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
