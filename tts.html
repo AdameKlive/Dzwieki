@@ -185,6 +185,36 @@
       height: 32px;
     }
 
+    /* Efekty audio */
+    .effects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    .fx-card {
+      background: #1c1f27;
+      border: 1px solid #2a2f3a;
+      border-radius: 10px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+    .fx-id {
+      font-family: monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: #22d3ee;
+      margin-bottom: 6px;
+    }
+    .fx-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e6e8ec;
+      margin-bottom: 4px;
+    }
+    .fx-desc { font-size: 11px; color: #64748b; }
+
     footer {
       margin-top: 60px;
       color: #3a3f4b;
@@ -231,6 +261,22 @@
       <span class="v">kawai:</span> <span class="t">siema siema</span> <span class="s">[8]</span> <span class="v">adamek:</span> <span class="t">no hej co tam</span> <span class="s">[3]</span>
     </div>
     <div class="syntax-desc">Każdy głos mówi swój fragment po kolei, efekty dźwiękowe wstawiane są między nimi.</div>
+  </div>
+
+  <div class="syntax-box">
+    <div class="syntax-label">Efekt audio na głos</div>
+    <div class="syntax-code"><span class="v">adamek:</span> <span class="t">Hej słyszysz mnie?</span> <span style="color:#22d3ee">{1}</span></div>
+    <div class="syntax-desc">Nawiasy klamrowe <b>{N}</b> nakładają efekt audio na poprzedni głos. Efekty w tabeli poniżej.</div>
+  </div>
+
+  <h2>✨ Efekty audio <small>— użycie: {1} {2} {3} {4} {5}</small></h2>
+
+  <div class="effects-grid">
+    <div class="fx-card"><div class="fx-id">{1}</div><div class="fx-name">📞 telefon</div><div class="fx-desc">Rozmowa przez telefon komórkowy</div></div>
+    <div class="fx-card"><div class="fx-id">{2}</div><div class="fx-name">📻 radio</div><div class="fx-desc">Transmisja radiowa ze zniekształceniem</div></div>
+    <div class="fx-card"><div class="fx-id">{3}</div><div class="fx-name">🏛️ sala</div><div class="fx-desc">Duże pomieszczenie z pogłosem</div></div>
+    <div class="fx-card"><div class="fx-id">{4}</div><div class="fx-name">🤖 robot</div><div class="fx-desc">Głos robotyczny</div></div>
+    <div class="fx-card"><div class="fx-id">{5}</div><div class="fx-name">🔁 echo</div><div class="fx-desc">Odbicie z opóźnieniem</div></div>
   </div>
 
   <h2>🎤 Dostępne głosy</h2>
@@ -283,6 +329,8 @@
       { id: 11, name: "Pokaż Dópe",                    file: "tts-audio/11.wav" },
       { id: 12, name: "TU TU TU DU MAX VERSTAPPEN",   file: "tts-audio/12.wav" },
       { id: 13, name: "Jesteś chuj nie kolega",        file: "tts-audio/13.wav" },
+      { id: 14, name: "Cell Phone Ringing",            file: "tts-audio/14.wav" },
+      { id: 15, name: "Phone Ringing",                 file: "tts-audio/15.wav" },
     ];
 
     const grid = document.getElementById("sounds-grid");
