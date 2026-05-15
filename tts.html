@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VoiceDrop TTS · adameklive.pl</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0 0 20px;
+      background: #080a10;
+      color: #dde1ea;
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+
+    /* ── Nav ─────────────────────────────────── */
+    .nav { display:flex; justify-content:center; gap:8px; padding:20px 16px; }
+    .tab {
+      padding:8px 22px; border-radius:8px; font-size:14px; font-weight:600;
+      text-decoration:none; background:#13151e; color:#6b7280;
+      border:1px solid #1e2130; transition:all .2s;
+    }
+    .tab:hover { color:#dde1ea; background:#1a1d28; }
+    .tab.active { background:#4c1d95; color:#e9d5ff; border-color:#6d28d9; box-shadow:0 0 20px rgba(109,40,217,.3); }
+
+    /* ── Hero ────────────────────────────────── */
+    .hero { text-align:center; padding:4px 16px 24px; }
+    .hero h1 { font-size:34px; font-weight:900; letter-spacing:-1px; color:#fff; margin:0 0 6px; }
+    .hero h1 span { color:#a78bfa; }
+    .hero p { font-size:14px; color:#4b5563; margin:0; }
+
+    /* ── Page ────────────────────────────────── */
+    .page { max-width:920px; margin:0 auto; padding:0 14px; display:flex; flex-direction:column; gap:14px; }
+
+    /* ── Card ────────────────────────────────── */
+    .card { background:#0f1117; border:1px solid #1e2130; border-radius:16px; overflow:hidden; }
+    .card-header {
+      padding:13px 20px; border-bottom:1px solid #1e2130;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; background:#13151e; flex-wrap:wrap;
+    }
+    .card-title { font-size:14px; font-weight:700; color:#a78bfa; display:flex; align-items:center; gap:7px; }
+    .card-hint  { font-size:11px; color:#374151; }
+
+    /* ── Sounds ──────────────────────────────── */
+    .sounds-title { font-size:14px; font-weight:700; color:#fbbf24; display:flex; align-items:center; gap:6px; }
+    .sounds-title small { font-size:11px; color:#374151; font-weight:400; }
+    #sound-search {
+      flex:1; max-width:200px; background:#080a10; color:#dde1ea;
+      border:1px solid #1e2130; border-radius:8px; padding:6px 12px;
+      font-size:13px; font-family:inherit; outline:none; transition:border-color .2s;
+    }
+    #sound-search:focus { border-color:#fbbf24; }
+    #sound-search::placeholder { color:#2d3242; }
+
+    #sounds-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(210px,1fr));
+      gap:7px;
+      padding:12px 16px 16px;
+    }
+    .no-results { color:#374151; font-size:13px; padding:8px 4px; grid-column:1/-1; }
+
+    /* ── Sound card ──────────────────────────── */
+    .sound-card {
+      background:#13151e; border:1px solid #1e2130; border-radius:10px;
+      padding:9px 11px; display:flex; align-items:center; gap:9px;
+      transition:border-color .15s, background .15s;
+    }
+    .sound-card:hover { border-color:#252830; }
+    .sound-card.playing { border-color:#fbbf24; background:rgba(251,191,36,.05); }
+    .sound-play {
+      width:30px; height:30px; border-radius:50%; background:#1a1d28;
+      border:1px solid #252830; color:#fbbf24; font-size:10px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+      transition:all .15s; padding:0;
+    }
+    .sound-card.playing .sound-play { background:rgba(251,191,36,.15); border-color:#fbbf24; }
+    .sound-play:hover { background:rgba(251,191,36,.1); border-color:#fbbf24; }
+    .sound-id-badge {
+      background:#0f1117; border:1px solid #252830; color:#fbbf24;
+      font-family:monospace; font-size:11px; font-weight:700;
+      padding:2px 6px; border-radius:5px; white-space:nowrap; flex-shrink:0;
+    }
+    .sound-name {
+      font-size:12px; color:#9ca3af; flex:1;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;
+    }
+    .sound-insert {
+      background:transparent; border:1px solid #1e2130; color:#4b5563;
+      border-radius:6px; padding:3px 9px; font-size:11px; cursor:pointer;
+      white-space:nowrap; transition:all .15s; flex-shrink:0;
+      font-family:"Cascadia Code","Fira Code",monospace;
+    }
+    .sound-insert:hover { border-color:#fbbf24; color:#fbbf24; background:rgba(251,191,36,.05); }
+    .sound-insert.ok { color:#4ade80; border-color:#4ade80; }
+
+    /* ── Reference ───────────────────────────── */
+    .ref-section { border:1px solid #1e2130; border-radius:16px; overflow:hidden; }
+    .ref-section summary {
+      padding:14px 20px; background:#0f1117; cursor:pointer;
+      font-size:13px; font-weight:600; color:#374151;
+      list-style:none; display:flex; align-items:center; gap:8px;
+      user-select:none; transition:all .15s;
+    }
+    .ref-section summary:hover { background:#13151e; color:#6b7280; }
+    .ref-section[open] summary { border-bottom:1px solid #1e2130; color:#6b7280; }
+    .ref-section summary::-webkit-details-marker { display:none; }
+    .ref-section summary::before { content:"▶"; font-size:9px; transition:transform .2s; flex-shrink:0; }
+    .ref-section[open] summary::before { transform:rotate(90deg); }
+    .ref-body { padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .ref-col-title { font-size:11px; font-weight:700; color:#4b5563; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
+    .syn-ex { background:#080a10; border:1px solid #1e2130; border-radius:10px; padding:12px 14px; margin-bottom:8px; }
+    .syn-lbl { font-size:10px; color:#374151; text-transform:uppercase; letter-spacing:1.2px; font-weight:700; margin-bottom:7px; }
+    .syn-code { font-family:"Cascadia Code","Fira Code",monospace; font-size:13px; line-height:1.9; word-break:break-all; }
+    .syn-code .v  { color:#a78bfa; font-weight:800; }
+    .syn-code .s  { color:#fbbf24; font-weight:700; background:rgba(251,191,36,.1); padding:1px 5px; border-radius:3px; }
+    .syn-code .fx { color:#67e8f9; font-weight:700; background:rgba(103,232,249,.08); padding:1px 5px; border-radius:3px; }
+    .syn-code .t  { color:#6b7280; }
+    .syn-desc { font-size:11px; color:#374151; margin-top:6px; line-height:1.5; }
+    .fx-ref-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(118px,1fr)); gap:6px; }
+    .fx-ref-card { background:#080a10; border:1px solid #1e2130; border-radius:8px; padding:10px; text-align:center; }
+    .fx-ref-id   { font-family:monospace; font-size:15px; font-weight:800; color:#67e8f9; margin-bottom:4px; }
+    .fx-ref-name { font-size:12px; color:#dde1ea; margin-bottom:2px; }
+    .fx-ref-desc { font-size:10px; color:#374151; }
+
+    footer { text-align:center; margin-top:32px; color:#1e2130; font-size:12px; }
+
+    /* ════════════════════════════════════════════
+       STICKY COMPOSER — przywiera do dołu okna
+    ════════════════════════════════════════════ */
+    #composer-wrap {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      padding: 0 14px;
+    }
+    /* Gradient fade powyżej paska */
+    #composer-wrap::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      right: 0;
+      height: 52px;
+      background: linear-gradient(transparent, #080a10);
+      pointer-events: none;
+    }
+    .composer-inner {
+      max-width: 920px;
+      margin: 0 auto;
+      background: #0f1117;
+      border: 1px solid #252830;
+      border-bottom: none;
+      border-radius: 14px 14px 0 0;
+      overflow: hidden;
+      box-shadow: 0 -8px 48px rgba(0,0,0,.85), 0 -1px 0 rgba(255,255,255,.04);
+    }
+
+    /* Header paska */
+    .composer-bar-header {
+      padding: 10px 16px;
+      border-bottom: 1px solid #1e2130;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #13151e;
+      flex-wrap: wrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    .composer-bar-header:hover { background: #161926; }
+    .bar-title { font-size:13px; font-weight:700; color:#a78bfa; display:flex; align-items:center; gap:7px; }
+    .bar-hint  { font-size:11px; color:#374151; }
+    .bar-toggle { font-size:11px; color:#374151; flex-shrink:0; }
+
+    /* Body paska */
+    .composer-bar-body { padding: 12px 16px 14px; }
+
+    /* Voice buttons */
+    .voice-row { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:10px; }
+    .vbtn {
+      display:flex; align-items:center; gap:5px; padding:6px 14px;
+      border-radius:20px; border:1.5px solid; font-size:13px; font-weight:700;
+      cursor:pointer; transition:all .15s; font-family:inherit; white-space:nowrap;
+    }
+    .vbtn:hover  { filter:brightness(1.25); transform:translateY(-1px); }
+    .vbtn:active { transform:translateY(0); }
+    .vbtn-adamek { background:rgba(196,181,253,.1); border-color:#a78bfa; color:#c4b5fd; }
+    .vbtn-kawai  { background:rgba(249,168,212,.1); border-color:#f9a8d4; color:#fbcfe8; }
+    .vbtn-lektor { background:rgba(103,232,249,.1); border-color:#67e8f9; color:#a5f3fc; }
+    .vbtn-dziwka { background:rgba(253,186,116,.1); border-color:#fdba74; color:#fed7aa; }
+
+    /* Textarea */
+    .input-wrap { position:relative; }
+    #val-input {
+      width:100%; background:#080a10; color:#dde1ea;
+      border:1.5px solid #1e2130; border-radius:10px;
+      padding:10px 46px 10px 14px; font-size:14px;
+      font-family:"Cascadia Code","Fira Code",monospace;
+      resize:none; outline:none; transition:border-color .2s; line-height:1.6;
+    }
+    #val-input:focus { border-color:#6d28d9; }
+    #val-input::placeholder { color:#2d3242; }
+    #val-status {
+      position:absolute; right:12px; top:10px;
+      font-size:16px; line-height:1; user-select:none; cursor:default;
+    }
+
+    /* Preview */
+    #val-preview {
+      font-family:"Cascadia Code","Fira Code",monospace; font-size:12px;
+      padding:8px 12px; background:#080a10;
+      border:1.5px solid #1e2130; border-radius:8px;
+      line-height:1.9; min-height:36px; white-space:pre-wrap;
+      word-break:break-all; margin-top:7px;
+    }
+    #val-errors { font-size:11px; color:#f87171; line-height:1.7; margin-top:5px; }
+
+    /* Effect chips */
+    .fx-row {
+      display:flex; align-items:center; gap:5px;
+      flex-wrap:wrap; margin-top:10px; padding-top:10px;
+      border-top:1px solid #1e2130;
+    }
+    .fx-label { font-size:10px; color:#374151; font-weight:700; text-transform:uppercase; letter-spacing:1px; white-space:nowrap; margin-right:2px; }
+    .fx-chip {
+      padding:3px 10px; border-radius:20px;
+      border:1px solid rgba(103,232,249,.25); background:rgba(103,232,249,.05);
+      color:#67e8f9; font-size:12px; font-weight:700;
+      font-family:"Cascadia Code","Fira Code",monospace;
+      cursor:pointer; transition:all .15s; white-space:nowrap;
+      position:relative;
+    }
+    .fx-chip:hover { background:rgba(103,232,249,.14); border-color:#67e8f9; transform:translateY(-1px); }
+    .fx-chip .fxtt {
+      display:none; position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+      background:#13151e; border:1px solid #252830; border-radius:6px;
+      padding:5px 10px; font-size:11px; font-family:"Segoe UI",sans-serif;
+      color:#dde1ea; white-space:nowrap; pointer-events:none; z-index:300;
+    }
+    .fx-chip:hover .fxtt { display:block; }
+
+    /* Actions */
+    .composer-actions { display:flex; align-items:center; gap:8px; margin-top:10px; flex-wrap:wrap; }
+    .btn-clear {
+      padding:7px 13px; background:transparent; border:1px solid #1e2130;
+      border-radius:8px; color:#4b5563; font-size:12px; cursor:pointer;
+      transition:all .15s; font-family:inherit;
+    }
+    .btn-clear:hover { border-color:#374151; color:#6b7280; }
+    #val-test-status { flex:1; font-size:12px; min-width:0; }
+    .btn-test {
+      padding:8px 20px; background:#6d28d9; border:none; border-radius:10px;
+      color:#fff; font-size:13px; font-weight:700; cursor:pointer;
+      transition:all .15s; font-family:inherit; white-space:nowrap;
+    }
+    .btn-test:hover { background:#7c3aed; box-shadow:0 0 16px rgba(109,40,217,.4); }
+    .btn-test:disabled { opacity:.35; cursor:default; box-shadow:none; }
+    #val-audio { width:100%; height:30px; margin-top:8px; display:none; }
+
+    /* Legend */
+    .legend {
+      display:flex; gap:10px; flex-wrap:wrap; font-size:10px; color:#374151;
+      margin-top:10px; padding-top:10px; border-top:1px solid #1e2130; align-items:center;
+    }
+    .legend b { color:#6b7280; font-size:10px; }
+    .legend-item { display:flex; align-items:center; gap:3px; }
+    .ldot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+    .legend-sep { border-left:1px solid #1e2130; padding-left:10px; display:flex; gap:10px; flex-wrap:wrap; }
+
+    ::-webkit-scrollbar { width:5px; }
+    ::-webkit-scrollbar-thumb { background:#1e2130; border-radius:3px; }
+
+    /* Collapsed state */
+    .composer-inner.collapsed .composer-bar-body { display:none; }
+
+    @media (max-width:640px) {
+      .hero h1 { font-size:26px; }
+      .ref-body { grid-template-columns:1fr; }
+      #sound-search { max-width:130px; }
+      .vbtn { padding:5px 11px; font-size:12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html" class="tab">🎵 Dźwięki</a>
+    <a href="tts.html"   class="tab active">🤖 VoiceDrop TTS</a>
+  </nav>
+
+  <div class="hero">
+    <h1>Voice<span>Drop</span> TTS</h1>
+    <p>Klonowane głosy AI · efekty audio · dźwięki — steruj alertem donate</p>
+  </div>
+
+  <!-- ═══ REFERENCE + SOUNDS ══════════════════════════════ -->
+  <div class="page">
+
+    <!-- Dokumentacja — zwinięta domyślnie -->
+    <details class="ref-section">
+      <summary>📖 Dokumentacja składni i pełna lista efektów</summary>
+      <div class="ref-body">
+        <div>
+          <div class="ref-col-title">Przykłady użycia</div>
+          <div class="syn-ex">
+            <div class="syn-lbl">Wybór głosu</div>
+            <div class="syn-code"><span class="v">adamek:</span> <span class="t">Hej co tam słychać?</span></div>
+            <div class="syn-desc">Nazwa głosu + dwukropek — wszystko po tym mówi wybrany głos</div>
+          </div>
+          <div class="syn-ex">
+            <div class="syn-lbl">Efekt dźwiękowy</div>
+            <div class="syn-code"><span class="t">tekst</span> <span class="s">[8]</span> <span class="t">tekst</span></div>
+            <div class="syn-desc">Liczba w [ ] wstawia dźwięk między fragmentami tekstu</div>
+          </div>
+          <div class="syn-ex">
+            <div class="syn-lbl">Efekt audio na głos</div>
+            <div class="syn-code"><span class="v">adamek:</span> <span class="t">Słyszysz mnie?</span> <span class="fx">{1}</span></div>
+            <div class="syn-desc">Nawiasy { } nakładają efekt audio na poprzedni głos</div>
+          </div>
+          <div class="syn-ex">
+            <div class="syn-lbl">Pełna kombinacja</div>
+            <div class="syn-code"><span class="v">kawai:</span> <span class="t">siema!</span> <span class="s">[33]</span> <span class="v">adamek:</span> <span class="t">no hej</span> <span class="fx">{4}</span></div>
+            <div class="syn-desc">Wiele głosów, dźwięki i efekty można dowolnie łączyć</div>
+          </div>
+        </div>
+        <div>
+          <div class="ref-col-title">Efekty audio {N}</div>
+          <div class="fx-ref-grid">
+            <div class="fx-ref-card"><div class="fx-ref-id">{1}</div><div class="fx-ref-name">📞 telefon</div><div class="fx-ref-desc">Przez telefon</div></div>
+            <div class="fx-ref-card"><div class="fx-ref-id">{2}</div><div class="fx-ref-name">📻 radio</div><div class="fx-ref-desc">Transmisja</div></div>
+            <div class="fx-ref-card"><div class="fx-ref-id">{4}</div><div class="fx-ref-name">🤖 robot</div><div class="fx-ref-desc">Robotyczny</div></div>
+            <div class="fx-ref-card"><div class="fx-ref-id">{5}</div><div class="fx-ref-name">🔁 echo</div><div class="fx-ref-desc">Z opóźnieniem</div></div>
+            <div class="fx-ref-card"><div class="fx-ref-id">{6}</div><div class="fx-ref-name">🔊 fade in</div><div class="fx-ref-desc">Stopniowo głośniej</div></div>
+            <div class="fx-ref-card"><div class="fx-ref-id">{7}</div><div class="fx-ref-name">🔇 fade out</div><div class="fx-ref-desc">Stopniowo ciszej</div></div>
+            <div class="fx-ref-card"><div class="fx-ref-id">{8}</div><div class="fx-ref-name">🐢 slow</div><div class="fx-ref-desc">Wolniej</div></div>
+            <div class="fx-ref-card"><div class="fx-ref-id">{9}</div><div class="fx-ref-name">⚡ fast</div><div class="fx-ref-desc">Szybciej</div></div>
+            <div class="fx-ref-card"><div class="fx-ref-id">{10}</div><div class="fx-ref-name">🧱 muff</div><div class="fx-ref-desc">Za ścianą</div></div>
+            <div class="fx-ref-card"><div class="fx-ref-id">{11}</div><div class="fx-ref-name">⬇️ high</div><div class="fx-ref-desc">Niższy pitch</div></div>
+            <div class="fx-ref-card"><div class="fx-ref-id">{12}</div><div class="fx-ref-name">⬆️ deep</div><div class="fx-ref-desc">Wyższy pitch</div></div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Dźwięki -->
+    <div class="card">
+      <div class="card-header">
+        <span class="sounds-title">🔊 Efekty dźwiękowe <small>— ▶ odsłuchaj · Wstaw dodaje [N] do wiadomości</small></span>
+        <input type="search" id="sound-search" placeholder="🔍 Szukaj…">
+      </div>
+      <div id="sounds-grid"></div>
+    </div>
+
+  </div>
+
+  <footer>dzwieki.adameklive.pl · VoiceDrop TTS</footer>
+
+  <!-- ════════════════════════════════════════════════════════
+       STICKY COMPOSER — przywiera do dołu przeglądarki
+  ════════════════════════════════════════════════════════ -->
+  <div id="composer-wrap">
+    <div class="composer-inner" id="composer-inner">
+
+      <!-- Nagłówek — klik zwija/rozwija -->
+      <div class="composer-bar-header" id="composer-toggle">
+        <span class="bar-title">🎛️ Komponuj wiadomość</span>
+        <span class="bar-hint">Kliknij głos lub dźwięk → wstawi się do pola</span>
+        <span class="bar-toggle" id="toggle-icon">▼ zwiń</span>
+      </div>
+
+      <!-- Ciało kompozytora -->
+      <div class="composer-bar-body">
+
+        <!-- Voice buttons -->
+        <div class="voice-row">
+          <button class="vbtn vbtn-adamek" id="vbtn-adamek">🎙️ adamek:</button>
+          <button class="vbtn vbtn-kawai"  id="vbtn-kawai" >🌸 kawai:</button>
+          <button class="vbtn vbtn-lektor" id="vbtn-lektor">📢 lektor:</button>
+          <button class="vbtn vbtn-dziwka" id="vbtn-dziwka">😈 dziwka:</button>
+        </div>
+
+        <!-- Textarea -->
+        <div class="input-wrap">
+          <textarea id="val-input" rows="2"
+            placeholder="Kliknij głos powyżej lub wpisz np.: adamek: Hej co słychać! [8] kawai: Siema!"></textarea>
+          <div id="val-status"></div>
+        </div>
+
+        <!-- Preview -->
+        <div id="val-preview"><span style="color:#2d3242;font-style:italic">Podgląd składni pojawi się tutaj…</span></div>
+        <div id="val-errors"></div>
+
+        <!-- Effect chips -->
+        <div class="fx-row">
+          <span class="fx-label">Efekty:</span>
+          <button class="fx-chip" id="fx-1" >{1}<span class="fxtt">📞 telefon</span></button>
+          <button class="fx-chip" id="fx-2" >{2}<span class="fxtt">📻 radio</span></button>
+          <button class="fx-chip" id="fx-4" >{4}<span class="fxtt">🤖 robot</span></button>
+          <button class="fx-chip" id="fx-5" >{5}<span class="fxtt">🔁 echo</span></button>
+          <button class="fx-chip" id="fx-6" >{6}<span class="fxtt">🔊 fade in</span></button>
+          <button class="fx-chip" id="fx-7" >{7}<span class="fxtt">🔇 fade out</span></button>
+          <button class="fx-chip" id="fx-8" >{8}<span class="fxtt">🐢 slow</span></button>
+          <button class="fx-chip" id="fx-9" >{9}<span class="fxtt">⚡ fast</span></button>
+          <button class="fx-chip" id="fx-10">{10}<span class="fxtt">🧱 muff</span></button>
+          <button class="fx-chip" id="fx-11">{11}<span class="fxtt">⬇️ niższy pitch</span></button>
+          <button class="fx-chip" id="fx-12">{12}<span class="fxtt">⬆️ wyższy pitch</span></button>
+        </div>
+
+        <!-- Actions -->
+        <div class="composer-actions">
+          <button class="btn-clear" id="clear-btn">✕ Wyczyść</button>
+          <div id="val-test-status"></div>
+          <button class="btn-test" id="val-test-btn">▶ Testuj TTS</button>
+        </div>
+        <audio id="val-audio" controls></audio>
+
+        <!-- Legend -->
+        <div class="legend">
+          <b>Głosy:</b>
+          <span id="val-voice-legend" style="display:contents"></span>
+          <span class="legend-sep">
+            <span class="legend-item"><span class="ldot" style="background:#fbbf24"></span>[dźwięk]</span>
+            <span class="legend-item"><span class="ldot" style="background:#67e8f9"></span>{efekt}</span>
+            <span class="legend-item"><span class="ldot" style="background:#f87171"></span>błąd</span>
+            <span class="legend-item"><span class="ldot" style="background:#374151"></span>domyślny głos</span>
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ SCRIPTS ══════════════════════════════════════════ -->
+  <script>
+  const VOICEDROP_URL = '';
+
+  // ── Composer ─────────────────────────────────────────────────────────────
+  (function() {
+    const VOICE_COLORS = {
+      adamek: '#c4b5fd',
+      kawai:  '#f9a8d4',
+      lektor: '#67e8f9',
+      dziwka: '#fdba74',
+    };
+    const KNOWN_VOICES  = Object.keys(VOICE_COLORS);
+    const KNOWN_EFFECTS = new Set([1,2,4,5,6,7,8,9,10,11,12]);
+    const EFFECT_ALIASES = Object.fromEntries([1,2,4,5,6,7,8,9,10,11,12].map(n => [String(n), n]));
+    const MAX_SOUND = 64;
+    const PAT = /(\w+)\s*:|(\[(\d+)\])|\{(\w+)\}/g;
+
+    const input = document.getElementById('val-input');
+
+    // ── Sticky height sync ─────────────────────────────────────────────────
+    const wrap = document.getElementById('composer-wrap');
+    function syncPadding() {
+      document.body.style.paddingBottom = wrap.offsetHeight + 'px';
+    }
+    syncPadding();
+    new ResizeObserver(syncPadding).observe(wrap);
+
+    // ── Collapse/expand ────────────────────────────────────────────────────
+    const inner      = document.getElementById('composer-inner');
+    const toggleIcon = document.getElementById('toggle-icon');
+    let collapsed = false;
+    document.getElementById('composer-toggle').addEventListener('click', () => {
+      collapsed = !collapsed;
+      inner.classList.toggle('collapsed', collapsed);
+      toggleIcon.textContent = collapsed ? '▲ rozwiń' : '▼ zwiń';
+      syncPadding();
+    });
+
+    // ── Insert at cursor ───────────────────────────────────────────────────
+    function insertAtCursor(text) {
+      if (collapsed) {
+        collapsed = false;
+        inner.classList.remove('collapsed');
+        toggleIcon.textContent = '▼ zwiń';
+        syncPadding();
+      }
+      const s = input.selectionStart, e = input.selectionEnd;
+      input.value = input.value.slice(0, s) + text + input.value.slice(e);
+      input.selectionStart = input.selectionEnd = s + text.length;
+      input.focus();
+      input.dispatchEvent(new Event('input'));
+    }
+    window._vdInsert = insertAtCursor;
+
+    // Voice buttons
+    document.getElementById('vbtn-adamek').onclick = () => insertAtCursor('adamek: ');
+    document.getElementById('vbtn-kawai' ).onclick = () => insertAtCursor('kawai: ');
+    document.getElementById('vbtn-lektor').onclick = () => insertAtCursor('lektor: ');
+    document.getElementById('vbtn-dziwka').onclick = () => insertAtCursor('dziwka: ');
+
+    // Effect chips
+    [1,2,4,5,6,7,8,9,10,11,12].forEach(n => {
+      const b = document.getElementById(`fx-${n}`);
+      if (b) b.addEventListener('click', () => insertAtCursor(`{${n}}`));
+    });
+
+    // Clear
+    document.getElementById('clear-btn').onclick = () => {
+      input.value = '';
+      input.dispatchEvent(new Event('input'));
+      input.focus();
+    };
+
+    // ── Validator ──────────────────────────────────────────────────────────
+    function escH(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    function resolveEffect(tok) {
+      const lo = tok.toLowerCase();
+      if (EFFECT_ALIASES[lo] != null) return EFFECT_ALIASES[lo];
+      const n = parseInt(tok);
+      return isNaN(n) ? null : n;
+    }
+
+    function validate(text) {
+      const preview = document.getElementById('val-preview');
+      const status  = document.getElementById('val-status');
+      const errBox  = document.getElementById('val-errors');
+
+      if (!text.trim()) {
+        preview.innerHTML = '<span style="color:#2d3242;font-style:italic">Podgląd składni pojawi się tutaj…</span>';
+        status.textContent = '';
+        errBox.textContent = '';
+        return;
+      }
+
+      let html = '', errors = [], lastEnd = 0;
+      let currentColor = '#4b5563', currentItalic = true;
+      PAT.lastIndex = 0;
+      let m;
+
+      while ((m = PAT.exec(text)) !== null) {
+        const pre = text.slice(lastEnd, m.index);
+        if (pre) html += `<span style="color:${currentColor};font-style:${currentItalic?'italic':'normal'}">${escH(pre)}</span>`;
+
+        if (m[1]) {
+          const v = m[1].toLowerCase(), ok = KNOWN_VOICES.includes(v);
+          currentColor = ok ? VOICE_COLORS[v] : '#f87171';
+          currentItalic = false;
+          html += `<span style="color:${currentColor};font-weight:800">${escH(m[0])}</span>`;
+          if (!ok) errors.push(`Nieznany głos: <b>"${escH(m[1])}"</b> — dostępne: ${KNOWN_VOICES.join(', ')}`);
+        } else if (m[2]) {
+          const id = parseInt(m[3]), ok = id >= 1 && id <= MAX_SOUND;
+          const c = ok ? '#fbbf24' : '#f87171';
+          html += `<span style="color:${c};font-weight:700;background:${ok?'rgba(251,191,36,.1)':'rgba(248,113,113,.1)'};padding:1px 5px;border-radius:4px">${escH(m[0])}</span>`;
+          if (!ok) errors.push(`Nieznany dźwięk: <b>[${id}]</b> — zakres 1–${MAX_SOUND}`);
+        } else if (m[4]) {
+          const eid = resolveEffect(m[4]), ok = eid != null && KNOWN_EFFECTS.has(eid);
+          const c = ok ? '#67e8f9' : '#f87171';
+          html += `<span style="color:${c};font-weight:700;background:${ok?'rgba(103,232,249,.08)':'rgba(248,113,113,.1)'};padding:1px 5px;border-radius:4px">${escH(m[0])}</span>`;
+          if (!ok) errors.push(`Nieznany efekt: <b>{${escH(m[4])}}</b>`);
+        }
+        lastEnd = m.index + m[0].length;
+      }
+
+      const rem = text.slice(lastEnd);
+      if (rem) html += `<span style="color:${currentColor};font-style:${currentItalic?'italic':'normal'}">${escH(rem)}</span>`;
+
+      preview.innerHTML = html;
+      errBox.innerHTML  = errors.map(e => `⚠️ ${e}`).join('<br>');
+      status.textContent = errors.length ? '❌' : '✅';
+      status.title = errors.length ? errors.map(e=>e.replace(/<[^>]+>/g,'')).join('\n') : 'Składnia poprawna!';
+    }
+
+    input.addEventListener('input', e => validate(e.target.value));
+
+    // Voice legend
+    const leg = document.getElementById('val-voice-legend');
+    if (leg) {
+      leg.innerHTML = KNOWN_VOICES.map(v =>
+        `<span class="legend-item"><span class="ldot" style="background:${VOICE_COLORS[v]}"></span>${v}:</span>`
+      ).join('');
+    }
+
+    // ── Test TTS ───────────────────────────────────────────────────────────
+    const testBtn    = document.getElementById('val-test-btn');
+    const testStatus = document.getElementById('val-test-status');
+    const testAudio  = document.getElementById('val-audio');
+
+    if (!VOICEDROP_URL) {
+      testBtn.disabled = true;
+      testBtn.title = 'Test TTS niedostępny';
+    } else {
+      testBtn.addEventListener('click', async () => {
+        const msg = input.value.trim();
+        if (!msg) { testStatus.innerHTML = '<span style="color:#fbbf24">⚠️ Wpisz wiadomość</span>'; return; }
+        testBtn.disabled = true;
+        testAudio.style.display = 'none';
+        testStatus.innerHTML = '<span style="color:#a78bfa">⏳ Generowanie AI…</span>';
+        try {
+          const r = await fetch(`${VOICEDROP_URL}/api/tts-preview`, {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ message: msg }),
+          });
+          const d = await r.json();
+          if (r.ok && d.audio_url) {
+            testAudio.src = VOICEDROP_URL + d.audio_url;
+            testAudio.style.display = 'block';
+            testAudio.play().catch(()=>{});
+            testStatus.innerHTML = '<span style="color:#4ade80">✅ Gotowe!</span>';
+            syncPadding();
+          } else if (r.status === 429) {
+            testStatus.innerHTML = `<span style="color:#fbbf24">⏳ ${d.error}</span>`;
+          } else {
+            testStatus.innerHTML = `<span style="color:#f87171">❌ ${d.error||'Błąd'}</span>`;
+          }
+        } catch(e) {
+          testStatus.innerHTML = '<span style="color:#f87171">❌ Brak połączenia z serwerem</span>';
+        } finally {
+          testBtn.disabled = false;
+        }
+      });
+    }
+  })();
+  </script>
+
+  <script>
+  // ── Sounds grid ────────────────────────────────────────────────────────────
+  const SOUNDS = [
+    { id:1,  name:"Plakal" },
+    { id:2,  name:"FAHHHHHHHHHHHHHH" },
+    { id:3,  name:"Fart" },
+    { id:4,  name:"M e o w ~" },
+    { id:5,  name:"VINE BOOM SOUND" },
+    { id:6,  name:"anime ahh" },
+    { id:7,  name:"rizz sound effect" },
+    { id:8,  name:"Michael Jackson Hee Hee" },
+    { id:9,  name:"Pokaż Dópe" },
+    { id:10, name:"Jesteś chuj nie kolega" },
+    { id:11, name:"Cell Phone Ringing" },
+    { id:12, name:"Phone Ringing" },
+    { id:13, name:"Typing Keyboard" },
+    { id:14, name:"Typing Typewriter" },
+    { id:15, name:"Old Phone Ringing" },
+    { id:16, name:"Phone Vibrate" },
+    { id:17, name:"Heartbeat" },
+    { id:18, name:"Alarm Clock" },
+    { id:19, name:"Door Knocking 1" },
+    { id:20, name:"Snoring" },
+    { id:21, name:"Applause 1" },
+    { id:22, name:"Applause 2" },
+    { id:23, name:"Applause 3" },
+    { id:24, name:"Doorbell" },
+    { id:25, name:"Gun Reload" },
+    { id:26, name:"Gun Shoot 1" },
+    { id:27, name:"Gun Shoot 2" },
+    { id:28, name:"Can Soda Opening" },
+    { id:29, name:"Chips Eating" },
+    { id:30, name:"Cigarette Lighting" },
+    { id:31, name:"Scream Male" },
+    { id:32, name:"Hit Male" },
+    { id:33, name:"Laugh Crowd" },
+    { id:34, name:"Scream Female" },
+    { id:35, name:"Slurping" },
+    { id:36, name:"Yawn" },
+    { id:37, name:"Zipper" },
+    { id:38, name:"Squish" },
+    { id:39, name:"Oooh" },
+    { id:40, name:"Ahhh" },
+    { id:41, name:"Burp" },
+    { id:42, name:"Fart 2" },
+    { id:43, name:"Bomb Countdown Beep" },
+    { id:44, name:"Sproing" },
+    { id:45, name:"Glass Break" },
+    { id:46, name:"Rain Gutter" },
+    { id:47, name:"Scary Song" },
+    { id:48, name:"Piano Sad" },
+    { id:49, name:"Cavalry Charge" },
+    { id:50, name:"Door Open" },
+    { id:51, name:"Footsteps" },
+    { id:52, name:"Dog Bark" },
+    { id:53, name:"Cat Meow" },
+    { id:54, name:"Car Door Open" },
+    { id:55, name:"Car Engine Start" },
+    { id:56, name:"Reveal Boom" },
+    { id:57, name:"Copium Inhale" },
+    { id:58, name:"Huh" },
+    { id:59, name:"Car Crash" },
+    { id:60, name:"Yoda Lego Death" },
+    { id:61, name:"York Bark" },
+    { id:62, name:"Monster Scary" },
+    { id:63, name:"Fart 2 (v2)" },
+    { id:64, name:"Horse Neigh" },
+  ].map(s => ({ ...s, file:`tts-audio/${s.id}.wav` }));
+
+  const grid   = document.getElementById('sounds-grid');
+  const search = document.getElementById('sound-search');
+  let curAudio = null, curCard = null;
+
+  function stopCurrent() {
+    if (curAudio) { curAudio.pause(); curAudio.currentTime = 0; }
+    if (curCard)  { curCard.classList.remove('playing'); curCard.querySelector('.sound-play').textContent = '▶'; }
+    curAudio = null; curCard = null;
+  }
+
+  function renderSounds(list) {
+    grid.innerHTML = '';
+    if (!list.length) {
+      grid.innerHTML = '<div class="no-results">Brak wyników dla tej frazy</div>';
+      return;
+    }
+    list.forEach(s => {
+      const card   = document.createElement('div');
+      card.className = 'sound-card';
+
+      const play   = document.createElement('button');
+      play.className = 'sound-play';
+      play.textContent = '▶';
+      play.title = `Odtwórz: ${s.name}`;
+
+      const badge  = document.createElement('div');
+      badge.className = 'sound-id-badge';
+      badge.textContent = `[${s.id}]`;
+
+      const name   = document.createElement('div');
+      name.className = 'sound-name';
+      name.textContent = s.name;
+      name.title = s.name;
+
+      const insert = document.createElement('button');
+      insert.className = 'sound-insert';
+      insert.textContent = 'Wstaw';
+      insert.title = `Wstaw [${s.id}] do wiadomości`;
+
+      const audio = new Audio(s.file);
+
+      play.addEventListener('click', () => {
+        const isSame = curAudio === audio;
+        stopCurrent();
+        if (isSame) return;
+        audio.play().catch(()=>{});
+        card.classList.add('playing');
+        play.textContent = '■';
+        curAudio = audio; curCard = card;
+        audio.onended = () => {
+          card.classList.remove('playing');
+          play.textContent = '▶';
+          if (curAudio === audio) { curAudio = null; curCard = null; }
+        };
+      });
+
+      insert.addEventListener('click', () => {
+        if (window._vdInsert) window._vdInsert(`[${s.id}]`);
+        clearTimeout(insert._t);
+        insert.textContent = '✓'; insert.classList.add('ok');
+        insert._t = setTimeout(() => { insert.textContent = 'Wstaw'; insert.classList.remove('ok'); }, 1200);
+      });
+
+      card.appendChild(play);
+      card.appendChild(badge);
+      card.appendChild(name);
+      card.appendChild(insert);
+      grid.appendChild(card);
+    });
+  }
+
+  renderSounds(SOUNDS);
+
+  search.addEventListener('input', () => {
+    const q = search.value.toLowerCase().trim();
+    if (!q) { renderSounds(SOUNDS); return; }
+    renderSounds(SOUNDS.filter(s =>
+      s.name.toLowerCase().includes(q) ||
+      String(s.id) === q ||
+      `[${s.id}]`.includes(q)
+    ));
+  });
+  </script>
+
+</body>
+</html>
