@@ -139,6 +139,7 @@
     /* Header paska */
     .composer-bar-header {
       padding: 10px 16px;
+      border-radius: 14px 14px 0 0;
       border-bottom: 1px solid #1e2130;
       display: flex;
       align-items: center;
@@ -353,10 +354,6 @@
           <button class="fx-chip" id="fx-12">⬆️ wyższy pitch<span class="fxtt">Podwyższa wysokość głosu o 2 półtony</span></button>
           <span class="fx-hint">↑ FILTR NAŁOŻY SIĘ NA GŁOS WPISANY PRZED NIM</span>
         </div>
-        <div style="font-size:10px;color:#374151;margin-top:6px;line-height:1.6;padding:0 2px">
-          💡 Dwa filtry na jednym głosie → wygrywa ostatni. Aby użyć obu powtórz głos:
-          <span style="font-family:'Cascadia Code','Fira Code',monospace;color:#4b5563">adamek: tekst {2} adamek: więcej tekstu {6}</span>
-        </div>
         <!-- Actions -->
         <div class="composer-actions">
           <button class="btn-clear" id="clear-btn">✕ Wyczyść</button>
@@ -501,17 +498,27 @@
       if (lastEnd < text.length) tokens.push({type:'text', text: text.slice(lastEnd)});
 
       // ── Pass 2: oznacz każdy token który bezpośrednio poprzedza filtr ────────
-      // Skanujemy wstecz od każdego filtra aż do poprzedniego filtra lub voice.
       for (let i = 0; i < tokens.length; i++) {
         if (tokens[i].type === 'filter') {
           for (let j = i - 1; j >= 0; j--) {
-            if (tokens[j].type === 'filter') break;           // stop na poprzednim filtrze
-            if (tokens[j].type === 'text') { tokens[j].ul = true; continue; }
+            if (tokens[j].type === 'filter') break;
+            if (tokens[j].type === 'text')  { tokens[j].ul = true; continue; }
             if (tokens[j].type === 'voice') { tokens[j].ul = true; break; }
-            // sfx — pomijamy (nie oznaczamy)
           }
         }
       }
+
+      // ── Pass 2b: oznacz nadpisane filtry (wszystkie poza ostatnim w segmencie) ──
+      let segFilters = [], inVoice = false;
+      const closeSegment = () => {
+        if (segFilters.length > 1) segFilters.slice(0, -1).forEach(f => { f.overridden = true; });
+        segFilters = [];
+      };
+      for (const tok of tokens) {
+        if (tok.type === 'voice')  { closeSegment(); inVoice = true; }
+        if (tok.type === 'filter' && inVoice) segFilters.push(tok);
+      }
+      closeSegment();
 
       // ── Pass 3: renderuj HTML ──────────────────────────────────────────────
       const UL = `text-decoration:underline;text-decoration-color:#67e8f9;text-underline-offset:3px;text-decoration-thickness:1.5px;`;
@@ -537,9 +544,11 @@
 
         } else if (tok.type === 'filter') {
           const eid = resolveEffect(tok.tok), ok = eid != null && KNOWN_EFFECTS.has(eid);
-          const c   = ok ? '#67e8f9' : '#f87171';
-          html += `<span style="color:${c};font-weight:700;background:${ok?'rgba(103,232,249,.08)':'rgba(248,113,113,.1)'};padding:1px 5px;border-radius:4px">${escH(tok.raw)}</span>`;
+          const c = ok ? (tok.overridden ? '#374151' : '#67e8f9') : '#f87171';
+          const strike = tok.overridden ? 'text-decoration:line-through;opacity:0.55;' : '';
+          html += `<span style="color:${c};font-weight:700;background:${ok?(tok.overridden?'rgba(55,65,81,.2)':'rgba(103,232,249,.08)'):'rgba(248,113,113,.1)'};padding:1px 5px;border-radius:4px;${strike}">${escH(tok.raw)}</span>`;
           if (!ok) errors.push(`Nieznany efekt: <b>{${escH(tok.tok)}}</b>`);
+          if (tok.overridden) errors.push(`<b>${escH(tok.raw)}</b> zostanie zignorowany — wygrywa ostatni filtr na tym głosie. Powtórz głos: <span style="font-family:monospace">adamek: tekst ${escH(tok.raw)} adamek: reszta {N}</span>`);
         }
       }
 
