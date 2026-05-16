@@ -101,33 +101,6 @@
     .sound-insert.ok { color:#4ade80; border-color:#4ade80; }
 
     /* ── Reference ───────────────────────────── */
-    .ref-section { border:1px solid #1e2130; border-radius:16px; overflow:hidden; }
-    .ref-section summary {
-      padding:14px 20px; background:#0f1117; cursor:pointer;
-      font-size:13px; font-weight:600; color:#374151;
-      list-style:none; display:flex; align-items:center; gap:8px;
-      user-select:none; transition:all .15s;
-    }
-    .ref-section summary:hover { background:#13151e; color:#6b7280; }
-    .ref-section[open] summary { border-bottom:1px solid #1e2130; color:#6b7280; }
-    .ref-section summary::-webkit-details-marker { display:none; }
-    .ref-section summary::before { content:"▶"; font-size:9px; transition:transform .2s; flex-shrink:0; }
-    .ref-section[open] summary::before { transform:rotate(90deg); }
-    .ref-body { padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-    .ref-col-title { font-size:11px; font-weight:700; color:#4b5563; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
-    .syn-ex { background:#080a10; border:1px solid #1e2130; border-radius:10px; padding:12px 14px; margin-bottom:8px; }
-    .syn-lbl { font-size:10px; color:#374151; text-transform:uppercase; letter-spacing:1.2px; font-weight:700; margin-bottom:7px; }
-    .syn-code { font-family:"Cascadia Code","Fira Code",monospace; font-size:13px; line-height:1.9; word-break:break-all; }
-    .syn-code .v  { color:#a78bfa; font-weight:800; }
-    .syn-code .s  { color:#fbbf24; font-weight:700; background:rgba(251,191,36,.1); padding:1px 5px; border-radius:3px; }
-    .syn-code .fx { color:#67e8f9; font-weight:700; background:rgba(103,232,249,.08); padding:1px 5px; border-radius:3px; }
-    .syn-code .t  { color:#6b7280; }
-    .syn-desc { font-size:11px; color:#374151; margin-top:6px; line-height:1.5; }
-    .fx-ref-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(118px,1fr)); gap:6px; }
-    .fx-ref-card { background:#080a10; border:1px solid #1e2130; border-radius:8px; padding:10px; text-align:center; }
-    .fx-ref-id   { font-family:monospace; font-size:15px; font-weight:800; color:#67e8f9; margin-bottom:4px; }
-    .fx-ref-name { font-size:12px; color:#dde1ea; margin-bottom:2px; }
-    .fx-ref-desc { font-size:10px; color:#374151; }
 
     footer { text-align:center; margin-top:32px; color:#1e2130; font-size:12px; }
 
@@ -160,7 +133,6 @@
       border: 1px solid #252830;
       border-bottom: none;
       border-radius: 14px 14px 0 0;
-      overflow: hidden;
       box-shadow: 0 -8px 48px rgba(0,0,0,.85), 0 -1px 0 rgba(255,255,255,.04);
     }
 
@@ -196,7 +168,7 @@
     .vbtn:active { transform:translateY(0); }
     .vbtn-adamek { background:rgba(196,181,253,.1); border-color:#a78bfa; color:#c4b5fd; }
     .vbtn-kawai  { background:rgba(249,168,212,.1); border-color:#f9a8d4; color:#fbcfe8; }
-    .vbtn-lektor { background:rgba(103,232,249,.1); border-color:#67e8f9; color:#a5f3fc; }
+    .vbtn-lektor { background:rgba(134,239,172,.1); border-color:#86efac; color:#bbf7d0; }
     .vbtn-dziwka { background:rgba(253,186,116,.1); border-color:#fdba74; color:#fed7aa; }
 
     /* Textarea */
@@ -241,6 +213,19 @@
       position:relative;
     }
     .fx-chip:hover { background:rgba(103,232,249,.14); border-color:#67e8f9; transform:translateY(-1px); }
+    .fx-chip .fxtt {
+      display:none; position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%);
+      background:#1a1d28; border:1px solid #252830; border-radius:8px;
+      padding:7px 12px; font-size:11px; font-family:"Segoe UI",sans-serif;
+      color:#dde1ea; white-space:nowrap; pointer-events:none; z-index:300;
+      box-shadow:0 4px 16px rgba(0,0,0,.5);
+    }
+    .fx-chip:hover .fxtt { display:block; }
+    .fxtt { color:#9ca3af; }
+    .fx-hint {
+      font-size:11px; color:#dde1ea; margin-left:auto; font-style:italic;
+      white-space:nowrap; text-shadow:0 0 8px rgba(221,225,234,.4);
+    }
 
     /* Actions */
     .composer-actions { display:flex; align-items:center; gap:8px; margin-top:10px; flex-wrap:wrap; }
@@ -274,15 +259,6 @@
     .btn-test:disabled { opacity:.35; cursor:default; box-shadow:none; }
     #val-audio { width:100%; height:30px; margin-top:8px; display:none; }
 
-    /* Legend */
-    .legend {
-      display:flex; gap:10px; flex-wrap:wrap; font-size:10px; color:#374151;
-      margin-top:10px; padding-top:10px; border-top:1px solid #1e2130; align-items:center;
-    }
-    .legend b { color:#6b7280; font-size:10px; }
-    .legend-item { display:flex; align-items:center; gap:3px; }
-    .ldot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
-    .legend-sep { border-left:1px solid #1e2130; padding-left:10px; display:flex; gap:10px; flex-wrap:wrap; }
 
     ::-webkit-scrollbar { width:5px; }
     ::-webkit-scrollbar-thumb { background:#1e2130; border-radius:3px; }
@@ -292,7 +268,7 @@
 
     @media (max-width:640px) {
       .hero h1 { font-size:26px; }
-      .ref-body { grid-template-columns:1fr; }
+
       #sound-search { max-width:130px; }
       .vbtn { padding:5px 11px; font-size:12px; }
     }
@@ -307,57 +283,11 @@
 
   <div class="hero">
     <h1>Voice<span>Drop</span> TTS</h1>
-    <p>Klonowane głosy AI · efekty audio · dźwięki — steruj alertem donate</p>
+    <p>Klonowane głosy AI · efekty dźwiękowe · filtry audio — dla alertów TTS na streamie</p>
   </div>
 
   <!-- ═══ REFERENCE + SOUNDS ══════════════════════════════ -->
   <div class="page">
-
-    <!-- Dokumentacja — zwinięta domyślnie -->
-    <details class="ref-section">
-      <summary>📖 Dokumentacja składni i pełna lista efektów</summary>
-      <div class="ref-body">
-        <div>
-          <div class="ref-col-title">Przykłady użycia</div>
-          <div class="syn-ex">
-            <div class="syn-lbl">Wybór głosu</div>
-            <div class="syn-code"><span class="v">adamek:</span> <span class="t">Hej co tam słychać?</span></div>
-            <div class="syn-desc">Nazwa głosu + dwukropek — wszystko po tym mówi wybrany głos</div>
-          </div>
-          <div class="syn-ex">
-            <div class="syn-lbl">Efekt dźwiękowy</div>
-            <div class="syn-code"><span class="t">tekst</span> <span class="s">[8]</span> <span class="t">tekst</span></div>
-            <div class="syn-desc">Liczba w [ ] wstawia dźwięk między fragmentami tekstu</div>
-          </div>
-          <div class="syn-ex">
-            <div class="syn-lbl">Efekt audio na głos</div>
-            <div class="syn-code"><span class="v">adamek:</span> <span class="t">Słyszysz mnie?</span> <span class="fx">{1}</span></div>
-            <div class="syn-desc">Nawiasy { } nakładają efekt audio na poprzedni głos</div>
-          </div>
-          <div class="syn-ex">
-            <div class="syn-lbl">Pełna kombinacja</div>
-            <div class="syn-code"><span class="v">kawai:</span> <span class="t">siema!</span> <span class="s">[33]</span> <span class="v">adamek:</span> <span class="t">no hej</span> <span class="fx">{4}</span></div>
-            <div class="syn-desc">Wiele głosów, dźwięki i efekty można dowolnie łączyć</div>
-          </div>
-        </div>
-        <div>
-          <div class="ref-col-title">Efekty audio {N}</div>
-          <div class="fx-ref-grid">
-            <div class="fx-ref-card"><div class="fx-ref-id">{1}</div><div class="fx-ref-name">📞 telefon</div><div class="fx-ref-desc">Przez telefon</div></div>
-            <div class="fx-ref-card"><div class="fx-ref-id">{2}</div><div class="fx-ref-name">📻 radio</div><div class="fx-ref-desc">Transmisja</div></div>
-            <div class="fx-ref-card"><div class="fx-ref-id">{4}</div><div class="fx-ref-name">🤖 robot</div><div class="fx-ref-desc">Robotyczny</div></div>
-            <div class="fx-ref-card"><div class="fx-ref-id">{5}</div><div class="fx-ref-name">🔁 echo</div><div class="fx-ref-desc">Z opóźnieniem</div></div>
-            <div class="fx-ref-card"><div class="fx-ref-id">{6}</div><div class="fx-ref-name">🔊 fade in</div><div class="fx-ref-desc">Stopniowo głośniej</div></div>
-            <div class="fx-ref-card"><div class="fx-ref-id">{7}</div><div class="fx-ref-name">🔇 fade out</div><div class="fx-ref-desc">Stopniowo ciszej</div></div>
-            <div class="fx-ref-card"><div class="fx-ref-id">{8}</div><div class="fx-ref-name">🐢 slow</div><div class="fx-ref-desc">Wolniej</div></div>
-            <div class="fx-ref-card"><div class="fx-ref-id">{9}</div><div class="fx-ref-name">⚡ fast</div><div class="fx-ref-desc">Szybciej</div></div>
-            <div class="fx-ref-card"><div class="fx-ref-id">{10}</div><div class="fx-ref-name">🧱 muff</div><div class="fx-ref-desc">Za ścianą</div></div>
-            <div class="fx-ref-card"><div class="fx-ref-id">{11}</div><div class="fx-ref-name">⬇️ high</div><div class="fx-ref-desc">Niższy pitch</div></div>
-            <div class="fx-ref-card"><div class="fx-ref-id">{12}</div><div class="fx-ref-name">⬆️ deep</div><div class="fx-ref-desc">Wyższy pitch</div></div>
-          </div>
-        </div>
-      </div>
-    </details>
 
     <!-- Dźwięki -->
     <div class="card">
@@ -399,7 +329,7 @@
         <!-- Textarea -->
         <div class="input-wrap">
           <textarea id="val-input" rows="2"
-            placeholder="Kliknij głos powyżej lub wpisz np.: adamek: Hej co słychać! [8] kawai: Siema!"></textarea>
+            placeholder="Kliknij głos powyżej lub wpisz np.: adamek: Hej co słychać! [8] kawai: Siema {3}"></textarea>
           <div id="val-status"></div>
         </div>
 
@@ -410,19 +340,23 @@
         <!-- Effect chips -->
         <div class="fx-row">
           <span class="fx-label">Filtry:</span>
-          <button class="fx-chip" id="fx-1" >📞 telefon</button>
-          <button class="fx-chip" id="fx-2" >📻 radio</button>
-          <button class="fx-chip" id="fx-4" >🤖 robot</button>
-          <button class="fx-chip" id="fx-5" >🔁 echo</button>
-          <button class="fx-chip" id="fx-6" >🔊 fade in</button>
-          <button class="fx-chip" id="fx-7" >🔇 fade out</button>
-          <button class="fx-chip" id="fx-8" >🐢 slow</button>
-          <button class="fx-chip" id="fx-9" >⚡ fast</button>
-          <button class="fx-chip" id="fx-10">🧱 muff</button>
-          <button class="fx-chip" id="fx-11">⬇️ niższy pitch</button>
-          <button class="fx-chip" id="fx-12">⬆️ wyższy pitch</button>
+          <button class="fx-chip" id="fx-1" >📞 telefon<span class="fxtt">Głos przez telefon (zniekształcony)</span></button>
+          <button class="fx-chip" id="fx-2" >📻 radio<span class="fxtt">Transmisja radiowa (szorstki dźwięk)</span></button>
+          <button class="fx-chip" id="fx-4" >🤖 robot<span class="fxtt">Mechaniczny głos robotyczny</span></button>
+          <button class="fx-chip" id="fx-5" >🔁 echo<span class="fxtt">Odbicie głosu z opóźnieniem</span></button>
+          <button class="fx-chip" id="fx-6" >🔊 fade in<span class="fxtt">Głos stopniowo się pojawia</span></button>
+          <button class="fx-chip" id="fx-7" >🔇 fade out<span class="fxtt">Głos stopniowo zanika</span></button>
+          <button class="fx-chip" id="fx-8" >🐢 slow<span class="fxtt">Lekkie spowolnienie głosu</span></button>
+          <button class="fx-chip" id="fx-9" >⚡ fast<span class="fxtt">Lekkie przyspieszenie głosu</span></button>
+          <button class="fx-chip" id="fx-10">🧱 muff<span class="fxtt">Przytłumiony, jakby zza ściany</span></button>
+          <button class="fx-chip" id="fx-11">⬇️ niższy pitch<span class="fxtt">Obniża wysokość głosu o 2 półtony</span></button>
+          <button class="fx-chip" id="fx-12">⬆️ wyższy pitch<span class="fxtt">Podwyższa wysokość głosu o 2 półtony</span></button>
+          <span class="fx-hint">↑ FILTR NAŁOŻY SIĘ NA GŁOS WPISANY PRZED NIM</span>
         </div>
-
+        <div style="font-size:10px;color:#374151;margin-top:6px;line-height:1.6;padding:0 2px">
+          💡 Dwa filtry na jednym głosie → wygrywa ostatni. Aby użyć obu powtórz głos:
+          <span style="font-family:'Cascadia Code','Fira Code',monospace;color:#4b5563">adamek: tekst {2} adamek: więcej tekstu {6}</span>
+        </div>
         <!-- Actions -->
         <div class="composer-actions">
           <button class="btn-clear" id="clear-btn">✕ Wyczyść</button>
@@ -433,17 +367,6 @@
         </div>
         <audio id="val-audio" controls></audio>
 
-        <!-- Legend -->
-        <div class="legend">
-          <b>Głosy:</b>
-          <span id="val-voice-legend" style="display:contents"></span>
-          <span class="legend-sep">
-            <span class="legend-item"><span class="ldot" style="background:#fbbf24"></span>[dźwięk]</span>
-            <span class="legend-item"><span class="ldot" style="background:#67e8f9"></span>{efekt}</span>
-            <span class="legend-item"><span class="ldot" style="background:#f87171"></span>błąd</span>
-            <span class="legend-item"><span class="ldot" style="background:#374151"></span>domyślny głos</span>
-          </span>
-        </div>
       </div>
 
     </div>
@@ -458,7 +381,7 @@
     const VOICE_COLORS = {
       adamek: '#c4b5fd',
       kawai:  '#f9a8d4',
-      lektor: '#67e8f9',
+      lektor: '#86efac',
       dziwka: '#fdba74',
     };
     const KNOWN_VOICES  = Object.keys(VOICE_COLORS);
@@ -561,37 +484,64 @@
         return;
       }
 
-      let html = '', errors = [], lastEnd = 0;
-      let currentColor = '#4b5563', currentItalic = true;
+      const errors = [];
+
+      // ── Pass 1: zbierz tokeny ──────────────────────────────────────────────
+      const tokens = [];
+      let lastEnd = 0;
       PAT.lastIndex = 0;
       let m;
-
       while ((m = PAT.exec(text)) !== null) {
-        const pre = text.slice(lastEnd, m.index);
-        if (pre) html += `<span style="color:${currentColor};font-style:${currentItalic?'italic':'normal'}">${escH(pre)}</span>`;
-
-        if (m[1]) {
-          const v = m[1].toLowerCase(), ok = KNOWN_VOICES.includes(v);
-          currentColor = ok ? VOICE_COLORS[v] : '#f87171';
-          currentItalic = false;
-          html += `<span style="color:${currentColor};font-weight:800">${escH(m[0])}</span>`;
-          if (!ok) errors.push(`Nieznany głos: <b>"${escH(m[1])}"</b> — dostępne: ${KNOWN_VOICES.join(', ')}`);
-        } else if (m[2]) {
-          const id = parseInt(m[3]), ok = id >= 1 && id <= MAX_SOUND;
-          const c = ok ? '#fbbf24' : '#f87171';
-          html += `<span style="color:${c};font-weight:700;background:${ok?'rgba(251,191,36,.1)':'rgba(248,113,113,.1)'};padding:1px 5px;border-radius:4px">${escH(m[0])}</span>`;
-          if (!ok) errors.push(`Nieznany dźwięk: <b>[${id}]</b> — zakres 1–${MAX_SOUND}`);
-        } else if (m[4]) {
-          const eid = resolveEffect(m[4]), ok = eid != null && KNOWN_EFFECTS.has(eid);
-          const c = ok ? '#67e8f9' : '#f87171';
-          html += `<span style="color:${c};font-weight:700;background:${ok?'rgba(103,232,249,.08)':'rgba(248,113,113,.1)'};padding:1px 5px;border-radius:4px">${escH(m[0])}</span>`;
-          if (!ok) errors.push(`Nieznany efekt: <b>{${escH(m[4])}}</b>`);
-        }
+        if (m.index > lastEnd) tokens.push({type:'text', text: text.slice(lastEnd, m.index)});
+        if      (m[1]) tokens.push({type:'voice',  speaker: m[1].toLowerCase(), raw: m[0]});
+        else if (m[2]) tokens.push({type:'sfx',    id: parseInt(m[3]),          raw: m[0]});
+        else if (m[4]) tokens.push({type:'filter',  tok: m[4],                  raw: m[0]});
         lastEnd = m.index + m[0].length;
       }
+      if (lastEnd < text.length) tokens.push({type:'text', text: text.slice(lastEnd)});
 
-      const rem = text.slice(lastEnd);
-      if (rem) html += `<span style="color:${currentColor};font-style:${currentItalic?'italic':'normal'}">${escH(rem)}</span>`;
+      // ── Pass 2: oznacz każdy token który bezpośrednio poprzedza filtr ────────
+      // Skanujemy wstecz od każdego filtra aż do poprzedniego filtra lub voice.
+      for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i].type === 'filter') {
+          for (let j = i - 1; j >= 0; j--) {
+            if (tokens[j].type === 'filter') break;           // stop na poprzednim filtrze
+            if (tokens[j].type === 'text') { tokens[j].ul = true; continue; }
+            if (tokens[j].type === 'voice') { tokens[j].ul = true; break; }
+            // sfx — pomijamy (nie oznaczamy)
+          }
+        }
+      }
+
+      // ── Pass 3: renderuj HTML ──────────────────────────────────────────────
+      const UL = `text-decoration:underline;text-decoration-color:#67e8f9;text-underline-offset:3px;text-decoration-thickness:1.5px;`;
+      let html = '';
+      let currentColor = '#4b5563', currentItalic = true;
+
+      for (const tok of tokens) {
+        if (tok.type === 'voice') {
+          const v = tok.speaker, ok = KNOWN_VOICES.includes(v);
+          currentColor  = ok ? VOICE_COLORS[v] : '#f87171';
+          currentItalic = false;
+          html += `<span style="color:${currentColor};font-weight:800;${tok.ul?UL:''}">${escH(tok.raw)}</span>`;
+          if (!ok) errors.push(`Nieznany głos: <b>"${escH(tok.speaker)}"</b> — dostępne: ${KNOWN_VOICES.join(', ')}`);
+
+        } else if (tok.type === 'text') {
+          html += `<span style="color:${currentColor};font-style:${currentItalic?'italic':'normal'};${tok.ul?UL:''}">${escH(tok.text)}</span>`;
+
+        } else if (tok.type === 'sfx') {
+          const ok = tok.id >= 1 && tok.id <= MAX_SOUND;
+          const c  = ok ? '#fbbf24' : '#f87171';
+          html += `<span style="color:${c};font-weight:700;background:${ok?'rgba(251,191,36,.1)':'rgba(248,113,113,.1)'};padding:1px 5px;border-radius:4px">${escH(tok.raw)}</span>`;
+          if (!ok) errors.push(`Nieznany dźwięk: <b>[${tok.id}]</b> — zakres 1–${MAX_SOUND}`);
+
+        } else if (tok.type === 'filter') {
+          const eid = resolveEffect(tok.tok), ok = eid != null && KNOWN_EFFECTS.has(eid);
+          const c   = ok ? '#67e8f9' : '#f87171';
+          html += `<span style="color:${c};font-weight:700;background:${ok?'rgba(103,232,249,.08)':'rgba(248,113,113,.1)'};padding:1px 5px;border-radius:4px">${escH(tok.raw)}</span>`;
+          if (!ok) errors.push(`Nieznany efekt: <b>{${escH(tok.tok)}}</b>`);
+        }
+      }
 
       preview.innerHTML = html;
       errBox.innerHTML  = errors.map(e => `⚠️ ${e}`).join('<br>');
@@ -600,14 +550,6 @@
     }
 
     input.addEventListener('input', e => validate(e.target.value));
-
-    // Voice legend
-    const leg = document.getElementById('val-voice-legend');
-    if (leg) {
-      leg.innerHTML = KNOWN_VOICES.map(v =>
-        `<span class="legend-item"><span class="ldot" style="background:${VOICE_COLORS[v]}"></span>${v}:</span>`
-      ).join('');
-    }
 
     // ── Test TTS ───────────────────────────────────────────────────────────
     const testBtn    = document.getElementById('val-test-btn');
