@@ -99,6 +99,19 @@
     }
     .sound-insert:hover { border-color:#fbbf24; color:#fbbf24; background:rgba(251,191,36,.05); }
     .sound-insert.ok { color:#4ade80; border-color:#4ade80; }
+    .sound-card.earrape { border-bottom: 2px solid rgba(239,68,68,.5); }
+    .earrape-badge {
+      font-size:9px; background:rgba(239,68,68,.12); color:#f87171;
+      border:1px solid rgba(239,68,68,.25); border-radius:4px;
+      padding:1px 5px; white-space:nowrap; flex-shrink:0; font-weight:700; letter-spacing:.3px;
+    }
+
+    /* ── Volume ──────────────────────────────── */
+    .vol-control {
+      display:flex; align-items:center; gap:5px; font-size:12px; color:#4b5563; flex-shrink:0;
+    }
+    .vol-control input[type=range] { width:72px; cursor:pointer; accent-color:#a78bfa; }
+    #vol-val { font-family:monospace; font-size:11px; color:#374151; min-width:28px; text-align:right; }
 
     /* ── Reference ───────────────────────────── */
 
@@ -278,8 +291,8 @@
 <body>
 
   <nav class="nav">
-    <a href="index.html" class="tab">🎵 Dźwięki</a>
-    <a href="tts.html"   class="tab active">🤖 VoiceDrop TTS</a>
+    <a href="." class="tab">🎵 Dźwięki</a>
+    <a href="tts" class="tab active">🤖 VoiceDrop TTS</a>
   </nav>
 
   <div class="hero">
@@ -313,6 +326,10 @@
       <div class="composer-bar-header" id="composer-toggle">
         <span class="bar-title">🎛️ Komponuj wiadomość</span>
         <span class="bar-hint">Kliknij głos lub dźwięk → wstawi się do pola</span>
+        <label class="vol-control" onclick="event.stopPropagation()">
+          🔊 <input type="range" id="vol-slider" min="0" max="100" value="70" step="5" title="Głośność podglądu dźwięków">
+          <span id="vol-val">70%</span>
+        </label>
         <span class="bar-toggle" id="toggle-icon">▼ zwiń</span>
       </div>
 
@@ -604,76 +621,10 @@
 
   <script>
   // ── Sounds grid ────────────────────────────────────────────────────────────
-  const SOUNDS = [
-    { id:1,  name:"Plakal" },
-    { id:2,  name:"FAHHHHHHHHHHHHHH" },
-    { id:3,  name:"Fart" },
-    { id:4,  name:"M e o w ~" },
-    { id:5,  name:"VINE BOOM SOUND" },
-    { id:6,  name:"anime ahh" },
-    { id:7,  name:"rizz sound effect" },
-    { id:8,  name:"Michael Jackson Hee Hee" },
-    { id:9,  name:"Pokaż Dópe" },
-    { id:10, name:"Jesteś chuj nie kolega" },
-    { id:11, name:"Cell Phone Ringing" },
-    { id:12, name:"Phone Ringing" },
-    { id:13, name:"Typing Keyboard" },
-    { id:14, name:"Typing Typewriter" },
-    { id:15, name:"Old Phone Ringing" },
-    { id:16, name:"Phone Vibrate" },
-    { id:17, name:"Heartbeat" },
-    { id:18, name:"Alarm Clock" },
-    { id:19, name:"Door Knocking 1" },
-    { id:20, name:"Snoring" },
-    { id:21, name:"Applause 1" },
-    { id:22, name:"Applause 2" },
-    { id:23, name:"Applause 3" },
-    { id:24, name:"Doorbell" },
-    { id:25, name:"Gun Reload" },
-    { id:26, name:"Gun Shoot 1" },
-    { id:27, name:"Gun Shoot 2" },
-    { id:28, name:"Can Soda Opening" },
-    { id:29, name:"Chips Eating" },
-    { id:30, name:"Cigarette Lighting" },
-    { id:31, name:"Scream Male" },
-    { id:32, name:"Hit Male" },
-    { id:33, name:"Laugh Crowd" },
-    { id:34, name:"Scream Female" },
-    { id:35, name:"Slurping" },
-    { id:36, name:"Yawn" },
-    { id:37, name:"Zipper" },
-    { id:38, name:"Squish" },
-    { id:39, name:"Oooh" },
-    { id:40, name:"Ahhh" },
-    { id:41, name:"Burp" },
-    { id:42, name:"Fart 2" },
-    { id:43, name:"Bomb Countdown Beep" },
-    { id:44, name:"Sproing" },
-    { id:45, name:"Glass Break" },
-    { id:46, name:"Rain Gutter" },
-    { id:47, name:"Scary Song" },
-    { id:48, name:"Piano Sad" },
-    { id:49, name:"Cavalry Charge" },
-    { id:50, name:"Door Open" },
-    { id:51, name:"Footsteps" },
-    { id:52, name:"Dog Bark" },
-    { id:53, name:"Cat Meow" },
-    { id:54, name:"Car Door Open" },
-    { id:55, name:"Car Engine Start" },
-    { id:56, name:"Reveal Boom" },
-    { id:57, name:"Copium Inhale" },
-    { id:58, name:"Huh" },
-    { id:59, name:"Car Crash" },
-    { id:60, name:"Yoda Lego Death" },
-    { id:61, name:"York Bark" },
-    { id:62, name:"Monster Scary" },
-    { id:63, name:"Fart 2 (v2)" },
-    { id:64, name:"Horse Neigh" },
-  ].map(s => ({ ...s, file:`tts-audio/${s.id}.wav` }));
-
   const grid   = document.getElementById('sounds-grid');
   const search = document.getElementById('sound-search');
   let curAudio = null, curCard = null;
+  let SOUNDS = [];
 
   function stopCurrent() {
     if (curAudio) { curAudio.pause(); curAudio.currentTime = 0; }
@@ -689,16 +640,12 @@
     }
     list.forEach(s => {
       const card   = document.createElement('div');
-      card.className = 'sound-card';
+      card.className = 'sound-card' + (s.earrape ? ' earrape' : '');
 
       const play   = document.createElement('button');
       play.className = 'sound-play';
       play.textContent = '▶';
       play.title = `Odtwórz: ${s.name}`;
-
-      const badge  = document.createElement('div');
-      badge.className = 'sound-id-badge';
-      badge.textContent = `[${s.id}]`;
 
       const name   = document.createElement('div');
       name.className = 'sound-name';
@@ -716,6 +663,7 @@
         const isSame = curAudio === audio;
         stopCurrent();
         if (isSame) return;
+        audio.volume = window._vdVolume ?? 0.7;
         audio.play().catch(()=>{});
         card.classList.add('playing');
         play.textContent = '■';
@@ -734,15 +682,32 @@
         insert._t = setTimeout(() => { insert.textContent = 'Wstaw'; insert.classList.remove('ok'); }, 1200);
       });
 
-      card.appendChild(play);
-      card.appendChild(badge);
-      card.appendChild(name);
+      if (s.earrape) {
+        const eb = document.createElement('span');
+        eb.className = 'earrape-badge';
+        eb.textContent = 'LOUD';
+        eb.title = 'Uwaga: głośny dźwięk!';
+        card.appendChild(play);
+        card.appendChild(eb);
+        card.appendChild(name);
+      } else {
+        card.appendChild(play);
+        card.appendChild(name);
+      }
       card.appendChild(insert);
       grid.appendChild(card);
     });
   }
 
-  renderSounds(SOUNDS);
+  fetch('sounds.json')
+    .then(r => r.json())
+    .then(data => {
+      SOUNDS = data.map(s => ({ ...s, file: `tts-audio/${s.id}.wav` }));
+      renderSounds(SOUNDS);
+    })
+    .catch(() => {
+      grid.innerHTML = '<div class="no-results">Błąd ładowania sounds.json</div>';
+    });
 
   search.addEventListener('input', () => {
     const q = search.value.toLowerCase().trim();
@@ -753,6 +718,17 @@
       `[${s.id}]`.includes(q)
     ));
   });
+
+  // ── Volume slider ────────────────────────────────────────────────────────
+  window._vdVolume = 0.7;
+  const volSlider = document.getElementById('vol-slider');
+  if (volSlider) {
+    volSlider.addEventListener('input', e => {
+      window._vdVolume = e.target.value / 100;
+      document.getElementById('vol-val').textContent = e.target.value + '%';
+      if (curAudio) curAudio.volume = window._vdVolume;
+    });
+  }
   </script>
 
 </body>
