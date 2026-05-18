@@ -170,10 +170,11 @@
     }
     .vbtn:hover  { filter:brightness(1.25); transform:translateY(-1px); }
     .vbtn:active { transform:translateY(0); }
-    .vbtn-adamek { background:rgba(196,181,253,.1); border-color:#a78bfa; color:#c4b5fd; }
-    .vbtn-kawai  { background:rgba(249,168,212,.1); border-color:#f9a8d4; color:#fbcfe8; }
-    .vbtn-lektor { background:rgba(134,239,172,.1); border-color:#86efac; color:#bbf7d0; }
-    .vbtn-dziwka { background:rgba(253,186,116,.1); border-color:#fdba74; color:#fed7aa; }
+    .vbtn-adamek  { background:rgba(196,181,253,.1); border-color:#a78bfa; color:#c4b5fd; }
+    .vbtn-adamek2 { background:rgba(196,181,253,.07); border-color:#a78bfa; color:#a78bfa; opacity:.85; }
+    .vbtn-kawai   { background:rgba(249,168,212,.1); border-color:#f9a8d4; color:#fbcfe8; }
+    .vbtn-lektor  { background:rgba(134,239,172,.1); border-color:#86efac; color:#bbf7d0; }
+    .vbtn-dziwka  { background:rgba(253,186,116,.1); border-color:#fdba74; color:#fed7aa; }
 
     /* Textarea */
     .input-wrap { position:relative; }
@@ -328,10 +329,11 @@
 
         <!-- Voice buttons -->
         <div class="voice-row">
-          <button class="vbtn vbtn-adamek" id="vbtn-adamek">🎙️ adamek:</button>
-          <button class="vbtn vbtn-kawai"  id="vbtn-kawai" >🌸 kawai:</button>
-          <button class="vbtn vbtn-lektor" id="vbtn-lektor">📢 lektor:</button>
-          <button class="vbtn vbtn-dziwka" id="vbtn-dziwka">😈 dziwka:</button>
+          <button class="vbtn vbtn-adamek"  id="vbtn-adamek" >🎙️ adamek:</button>
+          <button class="vbtn vbtn-adamek2" id="vbtn-adamek2">🎙️ adamekv2:</button>
+          <button class="vbtn vbtn-kawai"   id="vbtn-kawai"  >🌸 kawai:</button>
+          <button class="vbtn vbtn-lektor"  id="vbtn-lektor" >📢 lektor:</button>
+          <button class="vbtn vbtn-dziwka"  id="vbtn-dziwka" >😈 dziwka:</button>
         </div>
 
         <!-- Textarea -->
@@ -383,10 +385,11 @@
   // ── Composer ─────────────────────────────────────────────────────────────
   (function() {
     const VOICE_COLORS = {
-      adamek: '#c4b5fd',
-      kawai:  '#f9a8d4',
-      lektor: '#86efac',
-      dziwka: '#fdba74',
+      adamek:   '#c4b5fd',
+      adamekv2: '#a78bfa',
+      kawai:    '#f9a8d4',
+      lektor:   '#86efac',
+      dziwka:   '#fdba74',
     };
     const KNOWN_VOICES  = Object.keys(VOICE_COLORS);
     const KNOWN_EFFECTS = new Set([1,2,4,5,6,7,8,9,10,11,12]);
@@ -432,7 +435,8 @@
     window._vdInsert = insertAtCursor;
 
     // Voice buttons
-    document.getElementById('vbtn-adamek').onclick = () => insertAtCursor('adamek: ');
+    document.getElementById('vbtn-adamek').onclick  = () => insertAtCursor('adamek: ');
+    document.getElementById('vbtn-adamek2').onclick = () => insertAtCursor('adamekv2: ');
     document.getElementById('vbtn-kawai' ).onclick = () => insertAtCursor('kawai: ');
     document.getElementById('vbtn-lektor').onclick = () => insertAtCursor('lektor: ');
     document.getElementById('vbtn-dziwka').onclick = () => insertAtCursor('dziwka: ');
