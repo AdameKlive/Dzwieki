@@ -201,6 +201,9 @@
       word-break:break-all; margin-top:7px;
     }
     #val-errors { font-size:11px; color:#f87171; line-height:1.7; margin-top:5px; }
+    #char-counter { font-size:11px; color:#374151; text-align:right; margin-top:3px; }
+    #char-counter.warn { color:#fbbf24; }
+    #char-counter.over { color:#f87171; }
 
     /* Effect chips */
     .fx-row {
@@ -337,10 +340,11 @@
 
         <!-- Textarea -->
         <div class="input-wrap">
-          <textarea id="val-input" rows="2"
+          <textarea id="val-input" rows="2" maxlength="255"
             placeholder="Kliknij głos powyżej lub wpisz np.: adamek: Hej co słychać! [8] kawai: Siema {3}"></textarea>
           <div id="val-status"></div>
         </div>
+        <div id="char-counter">0/255</div>
 
         <!-- Preview -->
         <div id="val-preview"><span style="color:#2d3242;font-style:italic">Podgląd składni pojawi się tutaj…</span></div>
@@ -360,6 +364,7 @@
           <button class="fx-chip" id="fx-10">🧱 muff<span class="fxtt">Przytłumiony, jakby zza ściany</span></button>
           <button class="fx-chip" id="fx-11">⬇️ niższy pitch<span class="fxtt">Obniża wysokość głosu o 2 półtony</span></button>
           <button class="fx-chip" id="fx-12">⬆️ wyższy pitch<span class="fxtt">Podwyższa wysokość głosu o 2 półtony</span></button>
+          <button class="fx-chip" id="fx-pause" style="border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.06);color:#a78bfa">⏸ pauza 1s<span class="fxtt">Wstawia 1s ciszy — stackuje się, max 10s</span></button>
           <span class="fx-hint">↑ FILTR NAŁOŻY SIĘ NA GŁOS WPISANY PRZED NIM</span>
         </div>
         <!-- Actions -->
@@ -393,7 +398,7 @@
     const KNOWN_EFFECTS = new Set([1,2,4,5,6,7,8,9,10,11,12]);
     const EFFECT_ALIASES = Object.fromEntries([1,2,4,5,6,7,8,9,10,11,12].map(n => [String(n), n]));
     const MAX_SOUND = 64;
-    const PAT = /(\w+)\s*:|(\[(\d+)\])|\{(\w+)\}/g;
+    const PAT = /(\w+)\s*:|(\[(\d+)\])|\{(\w+)\}|(\\)/g;
 
     const input = document.getElementById('val-input');
 
@@ -500,7 +505,8 @@
         if (m.index > lastEnd) tokens.push({type:'text', text: text.slice(lastEnd, m.index)});
         if      (m[1]) tokens.push({type:'voice',  speaker: m[1].toLowerCase(), raw: m[0]});
         else if (m[2]) tokens.push({type:'sfx',    id: parseInt(m[3]),          raw: m[0]});
-        else if (m[4]) tokens.push({type:'filter',  tok: m[4],                  raw: m[0]});
+        else if (m[4]) tokens.push({type:'filter', tok: m[4],                   raw: m[0]});
+        else if (m[5]) tokens.push({type:'pause',                               raw: m[0]});
         lastEnd = m.index + m[0].length;
       }
       if (lastEnd < text.length) tokens.push({type:'text', text: text.slice(lastEnd)});
@@ -558,6 +564,8 @@
           html += `<span style="color:${c};font-weight:700;background:${ok?(tok.overridden?'rgba(55,65,81,.2)':'rgba(103,232,249,.08)'):'rgba(248,113,113,.1)'};padding:1px 5px;border-radius:4px;${strike}">${escH(tok.raw)}</span>`;
           if (!ok) errors.push(`Nieznany efekt: <b>{${escH(tok.tok)}}</b>`);
           if (tok.overridden) errors.push(`<b>${escH(tok.raw)}</b> zostanie zignorowany — wygrywa ostatni filtr na tym głosie. Powtórz głos: <span style="font-family:monospace">adamek: tekst ${escH(tok.raw)} adamek: reszta {N}</span>`);
+        } else if (tok.type === 'pause') {
+          html += `<span style="color:#a78bfa;font-weight:700;background:rgba(167,139,250,.1);padding:1px 6px;border-radius:4px">⏸ 1s</span>`;
         }
       }
 
@@ -567,7 +575,15 @@
       status.title = errors.length ? errors.map(e=>e.replace(/<[^>]+>/g,'')).join('\n') : 'Składnia poprawna!';
     }
 
-    input.addEventListener('input', e => validate(e.target.value));
+    const counter = document.getElementById('char-counter');
+    input.addEventListener('input', e => {
+      const len = e.target.value.length;
+      counter.textContent = `${len}/255`;
+      counter.className = len >= 255 ? 'over' : len >= 230 ? 'warn' : '';
+      validate(e.target.value);
+    });
+
+    document.getElementById('fx-pause').addEventListener('click', () => insertAtCursor('\\'));
 
     // ── Test TTS ───────────────────────────────────────────────────────────
     const testBtn    = document.getElementById('val-test-btn');
